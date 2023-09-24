@@ -110,9 +110,6 @@
     let new_playlist = []
 
     playlist.forEach(function(song, index){
-
-      /*let db = JSON.parse(fs.readFileSync(__dirname + "/cache/database.json", "utf8"));
-      let song_data = db.filter(element => element.id == song)[0]*/
       console.log(song)
 
       fetchVideoInfo(song, function (err, videoInfo) {

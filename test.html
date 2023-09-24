@@ -6,6 +6,172 @@
     <title>Player</title>
 </head>
 <body>
-    
+    <!--<audio src="https://cdn.pixabay.com/audio/2023/09/17/audio_93a5eb3c34.mp3" controls></audio>-->
+    <div class="player">
+        <audio src="" id="audio"></audio>
+        <div class="player-content">
+            <div id="song-action">
+                <i class="fa-solid fa-play fa-3x"></i>
+            </div>
+            <div id="song-time">
+                <input type="range" min="0" max="100" value="0" />
+            </div>
+            <div id="song-timestamp">
+                <p class="current">00:00</p>
+                <p>-</p>
+                <p class="max">00:00</p>
+            </div>
+        </div>
+        <div class="playlist">
+            <ul>
+                <li data-src="https://rr4---sn-25glene6.googlevideo.com/videoplayback?expire=1695592091&ei=O1oQZdzkEbfJmLAP_e6vsAE&ip=2a01%3Acb08%3A9075%3Ae000%3A5951%3A5d8c%3Aa47%3Ac9d7&id=o-AMJ2hPd-hofOqAN4PMtQMQxYxtvWwP8sbAFpPZn1Dula&itag=251&source=youtube&requiressl=yes&mh=he&mm=31%2C26&mn=sn-25glene6%2Csn-4g5edndk&ms=au%2Conr&mv=m&mvi=4&pl=36&gcr=fr&initcwndbps=1430000&spc=UWF9fx0-OJWYs4DBGbPlZ3q0dc3US9Y&vprv=1&svpuc=1&mime=audio%2Fwebm&gir=yes&clen=3997426&dur=230.241&lmt=1681372153859960&mt=1695570100&fvip=2&keepalive=yes&fexp=24007246&beids=24350018&c=ANDROID&txp=4532434&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cgcr%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AOq0QJ8wRQIgOyDLGdvEooi7F7VKb0MnILkjEvqYUrT2G0pC2W8n0FwCIQCCKTlMLuSCTmroovvoTP1iM7jQCAdaGNgcOY5SxXHvpg%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRAIgULFkoVnce2SJfj31PnF1zsSZdg7SMKArKwzwZHuvze0CIF309GKPwtrHF6wcAQyKMbU5nIsriA74amVZeyORbrzf" data-author="Avicii" data-name="Waiting for love">Waiting for love - Avicii</li>
+                <li data-src="https://rr2---sn-25glenlk.googlevideo.com/videoplayback?expire=1695585119&ei=_z4QZd-cCNCRhcIP9PGJ0AM&ip=2a01%3Acb08%3A9075%3Ae000%3A5951%3A5d8c%3Aa47%3Ac9d7&id=o-AHqOQvLEs2rdrRb9LHPQFIqhsjuW7zBnF2EYSaYZOFX2&itag=251&source=youtube&requiressl=yes&mh=sM&mm=31%2C26&mn=sn-25glenlk%2Csn-4g5edndd&ms=au%2Conr&mv=m&mvi=2&pl=36&initcwndbps=1456250&spc=UWF9f2U9f1xXZoKU4WXy1o03Q9yZrQk&vprv=1&svpuc=1&mime=audio%2Fwebm&gir=yes&clen=3138321&dur=206.261&lmt=1694025934516505&mt=1695563116&fvip=5&keepalive=yes&fexp=24007246&beids=24350018&c=ANDROID&txp=4532434&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AOq0QJ8wRAIgAoMyhfHPMaMfATiRMwGkC0le1XbIhJ4lhSKH8XZ8tWUCIAUsizPXEUwD0yzzzjTHYEnFOc_zpzJ4ZhYbXpZaARYs&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRQIgT8pwBXx7AufmCvkYG6xVxCpdPwbIHrpnvMEdtl5DITcCIQD8cuGDfxNXVKti_LXj957FUdQ_zGW-it8f7WcitP6ZNw%3D%3D" data-author="Alan Walker" data-name="THe Spectre">The spectre - Alan Walker</li>
+            </ul>
+        </div>
+    </div>
+
+    <style>
+        @import url('cache/libraries/fontawesome/css/all.min.css');
+
+        .player-content{
+            display: flex;
+            align-items: center;
+        }
+
+        .player-content #song-timestamp{
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+
+    <script>
+    function formatTime(seconds) {
+        const h = Math.floor(seconds / 3600)
+        const m = Math.floor((seconds % 3600) / 60)
+        const s = Math.round(seconds % 60)
+        return [h, m > 9 ? m : h ? '0' + m : m || '0', s > 9 ? s : '0' + s]
+            .filter(a => a)
+            .join(':')
+    }
+        class Player{
+            constructor(){
+                this.player = document.querySelector(".player");
+                this.audio = document.querySelector("#audio");
+
+                this.playlist = [];
+                this.currentSong;
+
+                this.initElements();
+                this.initPlaylist()
+                this.setEventsListeners();
+
+                this.init();
+            }
+
+            initElements(){
+                this.elements = {
+                    progress: this.player.querySelector("#song-time input"),
+                    currentTime: this.player.querySelector("#song-timestamp .current"),
+                    maxTime: this.player.querySelector("#song-timestamp .max"),
+                    action: this.player.querySelector("#song-action"),
+                    playlist: this.player.querySelector(".playlist ul")
+                }
+            }
+
+            init(song=0){
+                this.currentSong = this.playlist[song]
+                this.audio.src = this.currentSong.src;
+                this.initTime();
+            }
+
+            initTime(){
+                let global = this;
+
+                this.audio.onloadedmetadata = function() {
+                    global.setMaxTime(audio.duration)
+                };
+            }
+
+            setEventsListeners(){
+                let global = this;
+
+                /* PROGRESS */
+                this.elements.progress.oninput = function(){
+                    global.audio.currentTime = global.elements.progress.value
+                }
+
+                /* ADUIO */
+
+                this.audio.ontimeupdate = (event) => {
+                    global.elements.progress.value = global.audio.currentTime
+                    global.elements.currentTime.innerText = formatTime(global.audio.currentTime)
+                };
+
+                this.audio.onplay = function(){
+                    global.elements.action.innerHTML = '<i class="fa-solid fa-pause fa-3x"></i>'
+                }
+
+                this.audio.onpause = function(){
+                    global.elements.action.innerHTML = '<i class="fa-solid fa-play fa-3x"></i>'
+                }
+
+                this.audio.onend = function(){
+                    global.elements.action.innerHTML = '<i class="fa-solid fa-play fa-3x"></i>'
+                }
+
+                /* COMMANDS */
+
+                this.elements.action.addEventListener("click", function(){
+                    if(global.audio.paused){
+                        global.audio.play()
+                    }
+                    else{
+                        global.audio.pause()
+                    }
+                })
+
+            }
+
+            initPlaylist(){
+                let global = this;
+
+                this.elements.playlist.querySelectorAll("li").forEach(el => {
+                    global.playlist.push({
+                        src: el.getAttribute("data-src"),
+                        author: el.getAttribute("data-author"),
+                        name: el.getAttribute("data-name")
+                    })
+
+                    el.addEventListener("click", function(){
+                        var z = 0;
+                        Object.keys(global.playlist).forEach(a => {if(global.playlist[a]["src"] == this.getAttribute("data-src")){
+                            global.elements.action.innerHTML = '<i class="fa-solid fa-play fa-3x"></i>'
+                            global.init(a)
+                            global.play()
+                        }})
+                        
+                    })
+                })
+
+                
+            }
+
+            setMaxTime(time){
+                this.elements.maxTime.innerText = formatTime(time)
+                this.elements.progress.max = time
+            }
+
+            play(){
+                this.audio.play();
+            }
+
+            pause(){
+                this.audio.pause();
+            }
+        }
+
+        let player = new Player();
+    </script>
 </body>
 </html>
