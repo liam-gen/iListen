@@ -1,0 +1,26 @@
+@import url('../../cache/libraries/fontawesome/css/all.min.css');
+
+#loader{
+    position: absolute;
+    right: 50%;
+    bottom: 50%;
+    z-index: 99;
+    text-align: center;
+}
+
+#loader i{
+    font-size: 50px;
+}
+
+#loader-bg{
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    z-index: 98;
+    backdrop-filter: blur(100px);
+}
+
+body{
+    font-family: system-ui;
+    margin: 0;
+}

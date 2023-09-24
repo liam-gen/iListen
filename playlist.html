@@ -1,0 +1,190 @@
+<link rel="stylesheet" href="assets/css/player.css">
+<link rel="stylesheet" href="assets/css/modal.css">
+<div id="loader">
+    <i class="fas fa-circle-notch fa-spin fa-2xl"></i>
+</div>
+
+<script>
+  const fs = require("fs");
+  let playlist_id = new URL(location.href).searchParams.get("id");
+</script>
+<div id="loader-bg">
+
+</div>
+<div class="simple-audio-player" id="simp" data-config='{"shide_top":false,"shide_btm":false,"auto_load":false}'>
+    <div class="simp-playlist">
+      <ul id="sources">
+      </ul>
+    </div>
+    <div class="simp-footer">Propulsé par liamgen.js</div>
+
+    
+  </div>
+
+  <div id="lyrics"></div>
+
+
+    <a href="#add-song">Ajouter un son</a>
+
+<div id="add-song" class="modal">
+    <div class="modal__content">
+        <h1>Ajouter un son</h1>
+
+        <p>
+            Entrez l'url de la vidéo YouTube
+        </p>
+
+        <input id="song-url" type="text" placeholder="https://youtube.com/watch?v=xxxxx">
+
+        <br><br>
+
+        <button id="add-song-btn">
+            <span class="circle1"></span>
+            <span class="circle2"></span>
+            <span class="circle3"></span>
+            <span class="circle4"></span>
+            <span class="circle5"></span>
+            <span class="text">Ajouter</span>
+        </button>
+
+        <script>
+          document.getElementById("add-song-btn").addEventListener("click", () => {
+            let url = document.getElementById("song-url").value;
+            let id = new URL(url).searchParams.get("v");
+            if(id){
+              let data = JSON.parse(fs.readFileSync(__dirname + "/cache/playlists.json"))
+              data.forEach(d => {
+                if(d.id == playlist_id){
+                  d["songs"].push(id)
+                }
+              })
+              console.log(data)
+              fs.writeFileSync(__dirname + "/cache/playlists.json", JSON.stringify(data));
+              location.reload()
+            }
+          })
+        </script>
+          
+
+        <a href="#" class="modal__close"><i class="fa-solid fa-x"></i></a>
+    </div>
+</div>
+
+  <script src="node_modules/lrc-file-parser/dist/lrc-file-parser.min.js"></script>
+  <script src="assets/js/player.js"></script>
+<script>
+
+   function ifUrlExist(url) {
+    return new Promise(async (res, rej) => {
+      fetch(url).then(response => {
+        if (response.status == 200) {
+          res(true)
+        } else {
+          res(false)  
+        }
+      });
+      
+    })
+    
+};
+
+
+  const cache = JSON.parse(fs.readFileSync(__dirname + "/cache/songs.json", "utf8"));
+  const playlists = JSON.parse(fs.readFileSync(__dirname + "/cache/playlists.json", "utf8"));
+  let playlist = playlists.filter(playlist => playlist.id === playlist_id)[0]["songs"];
+    /*let playlist = [
+        "wJnBTPUQS5A",
+        "cHHLHGNpCSA"
+    ]*/
+
+    if(playlist.length == 0){
+      document.querySelector("#simp").remove()
+      document.querySelector("#loader-bg").remove()
+      document.querySelector("#loader").remove()
+    }
+
+    var fetchVideoInfo = require('updated-youtube-info');
+
+    const youtubedl = require('youtube-dl-exec')
+
+    let new_playlist = []
+
+    playlist.forEach(function(song, index){
+
+      /*let db = JSON.parse(fs.readFileSync(__dirname + "/cache/database.json", "utf8"));
+      let song_data = db.filter(element => element.id == song)[0]*/
+      console.log(song)
+
+      fetchVideoInfo(song, function (err, videoInfo) {
+      if(cache[song]){
+        ifUrlExist(cache[song]["url"]).then(res => {
+          if(res){
+            let url = cache[song]["url"];
+            new_playlist.push(cache[song]["url"])
+            console.log("Loading video "+song)
+                let li = document.createElement("li")
+                li.innerHTML = `<span data-img="${cache[song]["thumbnailUrl"]}"  class="simp-source" data-src="${url}">${cache[song]["title"]}</span><span class="simp-desc">${cache[song]["owner"]}</span>`
+                document.getElementById("sources").appendChild(li)
+
+                if(index == playlist.length - 1){
+                  console.log("END")
+                  launch()
+                }
+          }else{
+            youtubedl('https://www.youtube.com/watch?v='+song, {
+            dumpSingleJson: true,
+            noCheckCertificates: true,
+            noWarnings: true,
+            preferFreeFormats: true,
+            addHeader: ['referer:youtube.com', 'user-agent:googlebot']
+        }).then(output => {
+            console.log("Loading video "+song)
+            let li = document.createElement("li")
+            li.innerHTML = `<span class="simp-source" data-img="${videoInfo["thumbnailUrl"]}" data-src="${output["requested_formats"][1]["url"]}">${videoInfo["title"]}</span><span class="simp-desc">${videoInfo["owner"]}</span>`
+            document.getElementById("sources").appendChild(li)
+
+            new_playlist.push(output["requested_formats"][1]["url"])
+            let data = JSON.parse(fs.readFileSync(__dirname + "/cache/songs.json", "utf8"));
+            data[song] = videoInfo;
+           data[song]["url"] = output["requested_formats"][1]["url"]
+
+           fs.writeFileSync(__dirname + "/cache/songs.json", JSON.stringify(data, null, 4))
+
+            if(new_playlist.length == playlist.length){
+              launch()
+            }
+        })
+          }
+        })
+       
+      }else{
+        youtubedl('https://www.youtube.com/watch?v='+song, {
+            dumpSingleJson: true,
+            noCheckCertificates: true,
+            noWarnings: true,
+            preferFreeFormats: true,
+            addHeader: ['referer:youtube.com', 'user-agent:googlebot']
+        }).then(output => {
+            console.log("Loading video "+song)
+            let li = document.createElement("li")
+            li.innerHTML = `<span class="simp-source" data-img="${videoInfo["thumbnailUrl"]}" data-src="${output["requested_formats"][1]["url"]}">${videoInfo["title"]}</span><span class="simp-desc">${videoInfo["owner"]}</span>`
+            document.getElementById("sources").appendChild(li)
+
+            new_playlist.push(output["requested_formats"][1]["url"])
+            let data = JSON.parse(fs.readFileSync(__dirname + "/cache/songs.json", "utf8"));
+            data[song] = videoInfo;
+           data[song]["url"] = output["requested_formats"][1]["url"]
+
+           fs.writeFileSync(__dirname + "/cache/songs.json", JSON.stringify(data, null, 4))
+
+            if(new_playlist.length == playlist.length){
+              launch()
+            }
+        })
+      }
+    });
+
+      
+    })
+
+</script>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iListen</title>
+  <link rel="stylesheet" href="assets/css/default.css">
+  <link rel="stylesheet" href="assets/css/modal.css">
+</head>
+<body>
+  <div class="playlists">
+
+  </div>
+
+  <a href="test.html">Test</a>
+
+  <div class="wrapper">
+    <a href="#demo-modal">Créer une playlist</a>
+</div>
+
+<div id="demo-modal" class="modal">
+    <div class="modal__content">
+        <h1>Créer une playlist</h1>
+
+        <p>
+            Entrez le nom de votre playlist
+        </p>
+
+        <input id="playlist-name" type="text" placeholder="Nom de la playlist...">
+
+        <br><br>
+
+        <button id="create-playlist">
+            <span class="circle1"></span>
+            <span class="circle2"></span>
+            <span class="circle3"></span>
+            <span class="circle4"></span>
+            <span class="circle5"></span>
+            <span class="text">Créer</span>
+        </button>
+          
+
+        <a href="#" class="modal__close"><i class="fa-solid fa-x"></i></a>
+    </div>
+</div>
+<script>
+    const fs = require("fs");
+    document.getElementById("create-playlist").addEventListener("click", () => {
+
+        const playlistName = document.getElementById("playlist-name").value;
+
+        let data = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
+        let id = crypto.randomUUID().toString()
+        data.push ({
+            "name": playlistName,
+            "id": id,
+            "songs": []
+        })
+        fs.writeFileSync(__dirname+"/cache/playlists.json", JSON.stringify(data));
+    })
+
+    /* LOAD PLAYLISTS */
+    let data = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
+    let wrapper = document.querySelector(".playlists")
+
+    data.forEach(p => {
+        let element = document.createElement("div");
+        element.innerHTML = p["name"];
+        element.addEventListener("click", () => {
+            window.location.href = "playlist.html?id="+p["id"]
+        })
+        wrapper.appendChild(element);
+    });
+</script>
+</body>
+</html>
