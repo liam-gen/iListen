@@ -6,10 +6,13 @@
     <title>Player</title>
 </head>
 <body>
-    <!--<audio src="https://cdn.pixabay.com/audio/2023/09/17/audio_93a5eb3c34.mp3" controls></audio>-->
     <div class="player">
         <audio src="" id="audio"></audio>
         <div class="player-content">
+            <div id="song-data">
+                <div class="title"></div>
+                <div class="author"></div>
+            </div>
             <div id="song-action">
                 <i class="fa-solid fa-play fa-3x"></i>
             </div>
@@ -75,13 +78,19 @@
                     currentTime: this.player.querySelector("#song-timestamp .current"),
                     maxTime: this.player.querySelector("#song-timestamp .max"),
                     action: this.player.querySelector("#song-action"),
-                    playlist: this.player.querySelector(".playlist ul")
+                    playlist: this.player.querySelector(".playlist ul"),
+                    title: this.player.querySelector("#song-data .title"),
+                    author: this.player.querySelector("#song-data .author")
                 }
             }
 
             init(song=0){
                 this.currentSong = this.playlist[song]
                 this.audio.src = this.currentSong.src;
+
+                this.elements.author.innerText = this.currentSong.author;
+                this.elements.title.innerText = this.currentSong.name;
+
                 this.initTime();
             }
 
