@@ -2,7 +2,6 @@
 
 #loader{
     position: absolute;
-    right: 50%;
     bottom: 50%;
     z-index: 99;
     text-align: center;
@@ -10,6 +9,7 @@
 
 #loader i{
     font-size: 50px;
+    color: white;
 }
 
 #loader-bg{
@@ -20,7 +20,14 @@
     backdrop-filter: blur(100px);
 }
 
+#load{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 body{
     font-family: system-ui;
     margin: 0;
+    background-color: rebeccapurple;
 }

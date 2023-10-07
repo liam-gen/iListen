@@ -1,40 +1,101 @@
-<link rel="stylesheet" href="assets/css/player.css">
-<link rel="stylesheet" href="assets/css/modal.css">
-<div id="loader">
-    <i class="fas fa-circle-notch fa-spin fa-2xl"></i>
-</div>
-
-<script>
-  const fs = require("fs");
-  let playlist_id = new URL(location.href).searchParams.get("id");
-</script>
-<div id="loader-bg">
-
-</div>
-<div class="simple-audio-player" id="simp" data-config='{"shide_top":false,"shide_btm":false,"auto_load":false}'>
-    <div class="simp-playlist">
-      <ul id="sources">
-      </ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player</title>
+    <link rel="stylesheet" href="assets/css/default.css">
+    <link rel="stylesheet" href="assets/css/player.css">
+    <link rel="stylesheet" href="assets/css/modal.css">
+</head>
+<body>
+    <div id="load">
+        <div id="loader">
+            <i class="fas fa-circle-notch fa-spin fa-2xl"></i>
+        </div>
     </div>
-    <div class="simp-footer">Propulsé par liamgen.js</div>
-
     
-  </div>
 
-  <div id="lyrics"></div>
+    <div id="loader-bg"></div>
+    <main>
+        <div id="song-action-bar">
+            <div class="repeat">
+                <i class="fa-solid fa-repeat fa-xl"></i>
+            </div>
 
+            <img src="assets/icons/micro.png" alt="" width="30px">
 
-    <a href="#add-song">Ajouter un son</a>
+            <a href="#add-song" style="color: black;"><i class="fa-solid fa-add fa-xl"></i></a>
+
+             <a href="#edit-playlist" style="color: black;"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
+        </div>
+
+        <script>
+            function goTo(page){
+                window.location.href = page
+            }
+        </script>
+
+        <div id="menu-bar">
+            <i class="fa-solid fa-home fa-2xl" onclick="goTo('index.html')"></i>
+            <i class="fa-solid fa-music fa-2xl" onclick="goTo('playlists.html')"></i>
+            <i class="fa-solid fa-heart fa-2xl" onclick="goTo('favoris.html')"></i>
+        </div>
+
+        <div class="player">
+
+            <audio src="" id="audio"></audio>
+    
+            <div class="player-content">
+    
+                <div id="song-data">
+                    <img src="https://static.vecteezy.com/system/resources/previews/010/008/086/non_2x/background-dimension-3d-graphic-message-board-for-text-and-message-design-line-shadow-for-modern-web-design-free-vector.jpg" alt="" width="150px">
+                    <div class="title"></div>
+                    <div class="author"></div>
+                </div>
+    
+                <div id="song-action">
+                    <i class="fa-solid fa-backward-step fa-2x"></i>
+                    <div id="pause">
+                        <img src="assets/icons/play.png" alt="Play Icon">
+                    </div>
+                    <i class="fa-solid fa-forward-step fa-2x"></i>
+                </div>
+    
+                <div id="song-time">
+                    <input type="range" min="0" max="100" value="0" />
+    
+                    <div id="song-timestamp">
+                        <p class="current">00:00</p>
+                        <p>-</p>
+                        <p class="max">00:00</p>
+                    </div>
+                </div>
+    
+                
+    
+            </div>
+    
+            <div class="playlist">
+                <ul>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/player.js"></script>
+    <script src="assets/js/youtube.js"></script>
+    
 
 <div id="add-song" class="modal">
     <div class="modal__content">
         <h1>Ajouter un son</h1>
 
         <p>
-            Entrez l'url de la vidéo YouTube
+            Ajoutez une musique (identifiant de la vidéo YouTube)
         </p>
 
-        <input id="song-url" type="text" placeholder="https://youtube.com/watch?v=xxxxx">
+        <input id="song-id" type="text" placeholder="Identifiant de la vidéo YouTube...">
 
         <br><br>
 
@@ -46,142 +107,95 @@
             <span class="circle5"></span>
             <span class="text">Ajouter</span>
         </button>
-
-        <script>
-          document.getElementById("add-song-btn").addEventListener("click", () => {
-            let url = document.getElementById("song-url").value;
-            let id = new URL(url).searchParams.get("v");
-            if(id){
-              let data = JSON.parse(fs.readFileSync(__dirname + "/cache/playlists.json"))
-              data.forEach(d => {
-                if(d.id == playlist_id){
-                  d["songs"].push(id)
-                }
-              })
-              console.log(data)
-              fs.writeFileSync(__dirname + "/cache/playlists.json", JSON.stringify(data));
-              location.reload()
-            }
-          })
-        </script>
           
 
         <a href="#" class="modal__close"><i class="fa-solid fa-x"></i></a>
+
+        <script>
+            const fs = require("fs");
+            document.getElementById("add-song-btn").addEventListener("click", () => {
+
+                const songId = document.getElementById("song-id").value;
+
+                let data = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
+                data.forEach(c => {
+                    if(c.id == new URL(location.href).searchParams.get("id")){
+                        c["songs"].push(songId)
+                    }
+                })
+                fs.writeFileSync(__dirname+"/cache/playlists.json", JSON.stringify(data));
+
+                location.href = "#"
+
+                location.reload()
+            })
+        </script>
     </div>
 </div>
 
-  <script src="node_modules/lrc-file-parser/dist/lrc-file-parser.min.js"></script>
-  <script src="assets/js/player.js"></script>
-<script>
+<div id="edit-playlist" class="modal">
+    <div class="modal__content">
+        <h1>Supprimer des musiques</h1>
 
-   function ifUrlExist(url) {
-    return new Promise(async (res, rej) => {
-      fetch(url).then(response => {
-        if (response.status == 200) {
-          res(true)
-        } else {
-          res(false)  
-        }
-      });
-      
-    })
-    
-};
+        <p>Cliquez sur les éléments pour supprimer les musiques</p>
+
+        <ul id="edit-playlist"></ul>
+
+        <input id="song-id" type="text" placeholder="Identifiant de la vidéo YouTube...">
+
+        <br><br>
+
+        <button id="edit-playlist-btn">
+            <span class="circle1"></span>
+            <span class="circle2"></span>
+            <span class="circle3"></span>
+            <span class="circle4"></span>
+            <span class="circle5"></span>
+            <span class="text">Fermer</span>
+        </button>
+          
+
+        <a href="#" class="modal__close"><i class="fa-solid fa-x"></i></a>
+
+        <script>
+
+            function arrayRemove(arr, value) {
+            
+            return arr.filter(function (geeks) {
+                return geeks != value;
+            });
+
+            }
 
 
-  const cache = JSON.parse(fs.readFileSync(__dirname + "/cache/songs.json", "utf8"));
-  const playlists = JSON.parse(fs.readFileSync(__dirname + "/cache/playlists.json", "utf8"));
-  let playlist = playlists.filter(playlist => playlist.id === playlist_id)[0]["songs"];
-    /*let playlist = [
-        "wJnBTPUQS5A",
-        "cHHLHGNpCSA"
-    ]*/
+            let playlist = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"));
+            let cache = JSON.parse(fs.readFileSync(__dirname+"/cache/songs.json", "utf8"));
+            playlist = playlist.filter(d => d.id == new URL(location.href).searchParams.get("id"))[0];
 
-    if(playlist.length == 0){
-      document.querySelector("#simp").remove()
-      document.querySelector("#loader-bg").remove()
-      document.querySelector("#loader").remove()
-    }
+            let wrapper = document.querySelector("ul#edit-playlist")
+            playlist["songs"].forEach(a => {
+                let li = document.createElement("li");
+                li.innerHTML = cache[a]["title"];
+                li.style.cursor = "pointer";
 
-    var fetchVideoInfo = require('updated-youtube-info');
+                li.onclick = function(){
+                    let the = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
+                    the.forEach(c => {
+                        if(c.id == new URL(location.href).searchParams.get("id")){
+                            c["songs"].splice(c["songs"].indexOf(a), 1)
+                        }
+                    })
+                    fs.writeFileSync(__dirname+"/cache/playlists.json", JSON.stringify(the));
 
-    const youtubedl = require('youtube-dl-exec')
+                    li.remove()
 
-    let new_playlist = []
-
-    playlist.forEach(function(song, index){
-      console.log(song)
-
-      fetchVideoInfo(song, function (err, videoInfo) {
-      if(cache[song]){
-        ifUrlExist(cache[song]["url"]).then(res => {
-          if(res){
-            let url = cache[song]["url"];
-            new_playlist.push(cache[song]["url"])
-            console.log("Loading video "+song)
-                let li = document.createElement("li")
-                li.innerHTML = `<span data-img="${cache[song]["thumbnailUrl"]}"  class="simp-source" data-src="${url}">${cache[song]["title"]}</span><span class="simp-desc">${cache[song]["owner"]}</span>`
-                document.getElementById("sources").appendChild(li)
-
-                if(index == playlist.length - 1){
-                  console.log("END")
-                  launch()
                 }
-          }else{
-            youtubedl('https://www.youtube.com/watch?v='+song, {
-            dumpSingleJson: true,
-            noCheckCertificates: true,
-            noWarnings: true,
-            preferFreeFormats: true,
-            addHeader: ['referer:youtube.com', 'user-agent:googlebot']
-        }).then(output => {
-            console.log("Loading video "+song)
-            let li = document.createElement("li")
-            li.innerHTML = `<span class="simp-source" data-img="${videoInfo["thumbnailUrl"]}" data-src="${output["requested_formats"][1]["url"]}">${videoInfo["title"]}</span><span class="simp-desc">${videoInfo["owner"]}</span>`
-            document.getElementById("sources").appendChild(li)
 
-            new_playlist.push(output["requested_formats"][1]["url"])
-            let data = JSON.parse(fs.readFileSync(__dirname + "/cache/songs.json", "utf8"));
-            data[song] = videoInfo;
-           data[song]["url"] = output["requested_formats"][1]["url"]
+                wrapper.appendChild(li)
+            })
+        </script>
+    </div>
+</div>
 
-           fs.writeFileSync(__dirname + "/cache/songs.json", JSON.stringify(data, null, 4))
-
-            if(new_playlist.length == playlist.length){
-              launch()
-            }
-        })
-          }
-        })
-       
-      }else{
-        youtubedl('https://www.youtube.com/watch?v='+song, {
-            dumpSingleJson: true,
-            noCheckCertificates: true,
-            noWarnings: true,
-            preferFreeFormats: true,
-            addHeader: ['referer:youtube.com', 'user-agent:googlebot']
-        }).then(output => {
-            console.log("Loading video "+song)
-            let li = document.createElement("li")
-            li.innerHTML = `<span class="simp-source" data-img="${videoInfo["thumbnailUrl"]}" data-src="${output["requested_formats"][1]["url"]}">${videoInfo["title"]}</span><span class="simp-desc">${videoInfo["owner"]}</span>`
-            document.getElementById("sources").appendChild(li)
-
-            new_playlist.push(output["requested_formats"][1]["url"])
-            let data = JSON.parse(fs.readFileSync(__dirname + "/cache/songs.json", "utf8"));
-            data[song] = videoInfo;
-           data[song]["url"] = output["requested_formats"][1]["url"]
-
-           fs.writeFileSync(__dirname + "/cache/songs.json", JSON.stringify(data, null, 4))
-
-            if(new_playlist.length == playlist.length){
-              launch()
-            }
-        })
-      }
-    });
-
-      
-    })
-
-</script>
+</body>
+</html>
