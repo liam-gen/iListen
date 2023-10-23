@@ -40,27 +40,32 @@ class Player{
     }
 
     init(song=0){
-        this.currentSong = this.playlist[song]
-        this.currentSongIndex = song;
-        this.audio.src = this.currentSong.src;
-
-        this.audio.volume = 0.5;
-
-        this.elements.author.innerText = this.currentSong.author;
-        this.elements.title.innerText = this.currentSong.name;
-        this.elements.cover.src = this.currentSong.cover;
-
-        let global = this;
-
-        this.elements.playlist.querySelectorAll('li').forEach((a, b) => {
-            if(b == global.currentSongIndex){
-                a.classList.add('selected')
-            }else{
-                a.classList.remove('selected')
-            }
+        let glob = this;
+        return new Promise(function(resolve, reject){
+            glob.currentSong = glob.playlist[song]
+            glob.currentSongIndex = song;
+            glob.audio.src = glob.currentSong.src;
+    
+            glob.audio.volume = 0.5;
+    
+            glob.elements.author.innerText = glob.currentSong.author;
+            glob.elements.title.innerText = glob.currentSong.name;
+            glob.elements.cover.src = glob.currentSong.cover;
+    
+            let global = glob;
+    
+            glob.elements.playlist.querySelectorAll('li').forEach((a, b) => {
+                if(b == global.currentSongIndex){
+                    a.classList.add('selected')
+                }else{
+                    a.classList.remove('selected')
+                }
+            })
+    
+            glob.initTime();
+            resolve()
         })
-
-        this.initTime();
+        
     }
 
     initTime(){

@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "electron": "^26.2.1",
-    "lrc-file-parser": "^2.4.1",
-    "updated-youtube-info": "^1.4.7",
-    "youtube-dl-exec": "^2.4.12"
+    "sqlite": "^5.0.1",
+    "sqlite3": "^5.1.6",
+    "yt-dlp-wrap": "^2.3.12"
   },
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-packager . iListen --platform=win32 --arch=x64 --overwrite --icon=build/logo.ico"
   },
   "name": "ilisten",
   "version": "1.0.0",
@@ -14,5 +14,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "electron": "^27.0.2",
+    "electron-packager": "^17.1.2"
+  }
 }

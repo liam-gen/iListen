@@ -1,5 +1,26 @@
 @import url('../../cache/libraries/fontawesome/css/all.min.css');
 
+:root,
+:root.purple {
+  --bg-color: rebeccapurple;
+  --accent-color: pink;
+}
+
+:root.green {
+    --bg-color: #138808;
+    --accent-color: #32de84;
+}
+
+:root.blue {
+    --bg-color: #00308F;
+    --accent-color: #7FFFD4;
+}
+
+:root.gray {
+    --bg-color: #7E7E7E;
+    --accent-color: darkgray;
+}
+
 #loader{
     position: absolute;
     bottom: 50%;
@@ -29,5 +50,5 @@
 body{
     font-family: system-ui;
     margin: 0;
-    background-color: rebeccapurple;
+    background-color: var(--bg-color);
 }

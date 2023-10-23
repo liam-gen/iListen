@@ -8,10 +8,21 @@
     padding: 15px;
     width: fit-content;
     cursor: pointer;
+
+    min-width: 100px;
+    min-height: 40px;
+    text-align: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .playlists{
     margin: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .wrapper{

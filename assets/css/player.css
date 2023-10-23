@@ -51,7 +51,7 @@ main{
     text-align: center;
 }
 .fa-pause{
-    background: rebeccapurple;
+    background: var(--bg-color);
     border-radius: 50%;
     padding: 10px;
     width: 40px;
@@ -132,7 +132,7 @@ main{
 }
 
 .player-content #pause img{
-    background: rebeccapurple;
+    background: var(--bg-color);
     border-radius: 50%;
     padding: 10px;
     display: flex;
@@ -148,7 +148,7 @@ main{
 
 .playlist ul li:hover{
     border-radius: .5rem;
-    background: steelblue !important;
+    background: var(--bg-color) !important;
 }
 
 input[type="range"] {
@@ -157,20 +157,60 @@ input[type="range"] {
     background: transparent;
     cursor: pointer;
     width: 15rem;
-    accent-color: pink
+    accent-color: var(--accent-color);
 }
 
 input[type="range"]::-webkit-slider-runnable-track{
-    background: rebeccapurple;
+    background: var(--bg-color);
     border-radius: 8px;
 }
 
 input[type="range"]::-moz-range-track {
-    background: rebeccapurple;
+    background: var(--bg-color);
     border-radius: 8px;
 }
 
 .playlist .selected{
-    background-color: pink;
+    background-color: var(--accent-color);
     border-radius: 8px;
+}
+
+
+.themes{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+.themes div{
+    width: 50px;
+    height: 50px;
+    border: 1px transparent solid
+}
+
+.themes div:hover{
+    border: 1px white solid
+}
+
+.themes div.selected{
+    border: 1px white solid
+}
+
+.themes div.purple{
+    background: purple
+}
+
+.themes div.green{
+    background: green
+}
+
+.themes div.blue{
+    background: steelblue
+}
+
+.themes div.gray{
+    background: #5b5b5d
 }

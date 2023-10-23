@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player</title>
+    <title>Playlist</title>
     <link rel="stylesheet" href="assets/css/default.css">
     <link rel="stylesheet" href="assets/css/player.css">
     <link rel="stylesheet" href="assets/css/modal.css">
+
+    <script src="cache/libraries/tingle/index.min.js"></script>
+    <link rel="stylesheet" href="cache/libraries/tingle/style.min.css"/>
+    <script src="database.js"></script>
 </head>
 <body>
     <div id="load">
@@ -23,11 +27,14 @@
                 <i class="fa-solid fa-repeat fa-xl"></i>
             </div>
 
-            <img src="assets/icons/micro.png" alt="" width="30px">
+            <!--
+                <img src="assets/icons/micro.png" alt="" width="30px">
+                https://lyrist.vercel.app/api/Waiting%20for%20love
+            -->
 
-            <a href="#add-song" style="color: black;"><i class="fa-solid fa-add fa-xl"></i></a>
+            <a id="add-song" style="color: black;"><i class="fa-solid fa-add fa-xl"></i></a>
 
-             <a href="#edit-playlist" style="color: black;"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
+            <a id="edit-playlist" style="color: black;"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
         </div>
 
         <script>
@@ -38,8 +45,16 @@
 
         <div id="menu-bar">
             <i class="fa-solid fa-home fa-2xl" onclick="goTo('index.html')"></i>
-            <i class="fa-solid fa-music fa-2xl" onclick="goTo('playlists.html')"></i>
-            <i class="fa-solid fa-heart fa-2xl" onclick="goTo('favoris.html')"></i>
+            <i class="fa-solid fa-info fa-2xl" id="open-infos"></i>
+            <!--<i class="fa-solid fa-music fa-2xl" onclick="goTo('playlists.html')"></i>
+            <i class="fa-solid fa-heart fa-2xl" onclick="goTo('favoris.html')"></i>-->
+
+            <div class="themes">
+                <div class="purple" theme="purple"></div>
+                <div class="blue" theme="blue"></div>
+                <div class="green" theme="green"></div>
+                <div class="gray" theme="gray"></div>
+            </div>
         </div>
 
         <div class="player">
@@ -85,117 +100,7 @@
 
     <script src="assets/js/player.js"></script>
     <script src="assets/js/youtube.js"></script>
-    
-
-<div id="add-song" class="modal">
-    <div class="modal__content">
-        <h1>Ajouter un son</h1>
-
-        <p>
-            Ajoutez une musique (identifiant de la vidéo YouTube)
-        </p>
-
-        <input id="song-id" type="text" placeholder="Identifiant de la vidéo YouTube...">
-
-        <br><br>
-
-        <button id="add-song-btn">
-            <span class="circle1"></span>
-            <span class="circle2"></span>
-            <span class="circle3"></span>
-            <span class="circle4"></span>
-            <span class="circle5"></span>
-            <span class="text">Ajouter</span>
-        </button>
-          
-
-        <a href="#" class="modal__close"><i class="fa-solid fa-x"></i></a>
-
-        <script>
-            const fs = require("fs");
-            document.getElementById("add-song-btn").addEventListener("click", () => {
-
-                const songId = document.getElementById("song-id").value;
-
-                let data = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
-                data.forEach(c => {
-                    if(c.id == new URL(location.href).searchParams.get("id")){
-                        c["songs"].push(songId)
-                    }
-                })
-                fs.writeFileSync(__dirname+"/cache/playlists.json", JSON.stringify(data));
-
-                location.href = "#"
-
-                location.reload()
-            })
-        </script>
-    </div>
-</div>
-
-<div id="edit-playlist" class="modal">
-    <div class="modal__content">
-        <h1>Supprimer des musiques</h1>
-
-        <p>Cliquez sur les éléments pour supprimer les musiques</p>
-
-        <ul id="edit-playlist"></ul>
-
-        <input id="song-id" type="text" placeholder="Identifiant de la vidéo YouTube...">
-
-        <br><br>
-
-        <button id="edit-playlist-btn">
-            <span class="circle1"></span>
-            <span class="circle2"></span>
-            <span class="circle3"></span>
-            <span class="circle4"></span>
-            <span class="circle5"></span>
-            <span class="text">Fermer</span>
-        </button>
-          
-
-        <a href="#" class="modal__close"><i class="fa-solid fa-x"></i></a>
-
-        <script>
-
-            function arrayRemove(arr, value) {
-            
-            return arr.filter(function (geeks) {
-                return geeks != value;
-            });
-
-            }
-
-
-            let playlist = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"));
-            let cache = JSON.parse(fs.readFileSync(__dirname+"/cache/songs.json", "utf8"));
-            playlist = playlist.filter(d => d.id == new URL(location.href).searchParams.get("id"))[0];
-
-            let wrapper = document.querySelector("ul#edit-playlist")
-            playlist["songs"].forEach(a => {
-                let li = document.createElement("li");
-                li.innerHTML = cache[a]["title"];
-                li.style.cursor = "pointer";
-
-                li.onclick = function(){
-                    let the = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
-                    the.forEach(c => {
-                        if(c.id == new URL(location.href).searchParams.get("id")){
-                            c["songs"].splice(c["songs"].indexOf(a), 1)
-                        }
-                    })
-                    fs.writeFileSync(__dirname+"/cache/playlists.json", JSON.stringify(the));
-
-                    li.remove()
-
-                }
-
-                wrapper.appendChild(li)
-            })
-        </script>
-    </div>
-</div>
+    <script src="assets/js/playlist.js"></script>
 
 </body>
 </html>

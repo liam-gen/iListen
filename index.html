@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iListen</title>
+  <title>iListen - Accueil</title>
   <link rel="stylesheet" href="assets/css/default.css">
   <link rel="stylesheet" href="assets/css/modal.css">
   <link rel="stylesheet" href="assets/css/main.css">
+
+  <script src="cache/libraries/tingle/index.min.js"></script>
+  <link rel="stylesheet" href="cache/libraries/tingle/style.min.css"/>
+
+  <script src="database.js"></script>
+  
 </head>
 <body>
   <div class="playlists">
@@ -14,62 +20,103 @@
   </div>
 
   <div class="wrapper">
-    <a href="#demo-modal">Créer une playlist</a>
+    <button id="clear-cache">Vider le cache</button>
+    <button id="create-playlist">Créer une playlist</button>
 </div>
 
-<div id="demo-modal" class="modal">
-    <div class="modal__content">
-        <h1>Créer une playlist</h1>
 
-        <p>
-            Entrez le nom de votre playlist
-        </p>
 
-        <input id="playlist-name" type="text" placeholder="Nom de la playlist...">
-
-        <br><br>
-
-        <button id="create-playlist">
-            <span class="circle1"></span>
-            <span class="circle2"></span>
-            <span class="circle3"></span>
-            <span class="circle4"></span>
-            <span class="circle5"></span>
-            <span class="text">Créer</span>
-        </button>
-          
-
-        <a href="#" class="modal__close"><i class="fa-solid fa-x"></i></a>
-    </div>
-</div>
 <script>
-    const fs = require("fs");
-    document.getElementById("create-playlist").addEventListener("click", () => {
+let db = new Database();
 
-        const playlistName = document.getElementById("playlist-name").value;
+function getFilesizeInBytes(filename) {
+    var stats = fs.statSync(filename);
+    var fileSizeInBytes = stats.size;
+    return fileSizeInBytes;
+}
 
-        let data = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
-        let id = crypto.randomUUID().toString()
-        data.push ({
-            "name": playlistName,
-            "id": id,
-            "songs": []
-        })
-        fs.writeFileSync(__dirname+"/cache/playlists.json", JSON.stringify(data));
-    })
+function humanFileSize(bytes, si=true, dp=1) {
+  const thresh = si ? 1000 : 1024;
 
-    /* LOAD PLAYLISTS */
-    let data = JSON.parse(fs.readFileSync(__dirname+"/cache/playlists.json", "utf8"))
-    let wrapper = document.querySelector(".playlists")
+  if (Math.abs(bytes) < thresh) {
+    return bytes + ' B';
+  }
 
-    data.forEach(p => {
+  const units = si 
+    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] 
+    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  let u = -1;
+  const r = 10**dp;
+
+  do {
+    bytes /= thresh;
+    ++u;
+  } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+  return bytes.toFixed(dp) + ' ' + units[u];
+}
+
+let clearButton = document.getElementById('clear-cache');
+
+clearButton.innerHTML = "Vider le cache ("+humanFileSize(getFilesizeInBytes(__dirname + "/cache/songs.json"))+")"
+
+clearButton.onclick = function(){
+    fs.writeFileSync(__dirname + "/cache/songs.json", "{}")
+    clearButton.innerHTML = "Vider le cache ("+humanFileSize(getFilesizeInBytes(__dirname + "/cache/songs.json"))+")"
+}
+
+if(getFilesizeInBytes(__dirname + "/cache/songs.json") <= 2){
+    clearButton.remove()
+}
+/* LOAD PLAYLISTS */
+
+let wrapper = document.querySelector(".playlists")
+
+db.getPlaylists().then(elements => {
+    elements.forEach((playlist) => {
         let element = document.createElement("div");
-        element.innerHTML = p["name"];
+        element.innerHTML = playlist["name"];
         element.addEventListener("click", () => {
-            window.location.href = "playlist.html?id="+p["id"]
+            window.location.href = "playlist.html?id="+playlist["ID"]
         })
         wrapper.appendChild(element);
-    });
+    })
+})
+
+var modal = new tingle.modal({
+    footer: true,
+    stickyFooter: false,
+    closeMethods: ['button', 'escape'],
+    closeLabel: "Fermer",
+});
+
+document.getElementById("create-playlist").onclick = function(){
+    modal.open()
+}
+
+modal.setContent(`
+    <h1>Créer une playlist</h1>
+    <p>
+        Entrez le nom de votre playlist
+    </p>
+    <input id="playlist-name" type="text" placeholder="Nom de la playlist...">
+`);
+
+modal.addFooterBtn('Créer', 'tingle-btn tingle-btn--primary', function() {
+
+    const playlistName = document.getElementById("playlist-name").value;
+
+    db.createPlaylist(playlistName).then(() => {
+        location.reload()
+    })
+});
+
+modal.addFooterBtn('Annuler', 'tingle-btn tingle-btn--danger', function() {
+    modal.close();
+});
+
 </script>
+
 </body>
 </html>
