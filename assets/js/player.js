@@ -96,11 +96,11 @@ class Player{
         }
 
         this.audio.onpause = function(){
-            global.elements.action.innerHTML = `<img src="assets/icons/play.png" alt="Play Icon">`
+            global.elements.action.innerHTML = `<img src="../assets/icons/play.png" alt="Play Icon">`
         }
 
         this.audio.onended = function(){
-            global.elements.action.innerHTML = `<img src="assets/icons/play.png" alt="Play Icon">`
+            global.elements.action.innerHTML = `<img src="../assets/icons/play.png" alt="Play Icon">`
 
             if(global.repeat){
 

@@ -2,9 +2,17 @@ const sqlite3 = require("sqlite3").verbose();
 const {open} = require("sqlite")
 const fs = require("fs")
 
+let appdata;
+try{
+    appdata = require("../default").appdata
+}
+catch(e){
+    appdata = require('@electron/remote').app.getPath("userData");
+}
 
+console.log(appdata)
 class Database{
-    constructor(path=__dirname+"/cache/database.db"){
+    constructor(path=appdata+"/Data/database.db"){
         this.path = path;
 
         this.init()
@@ -49,6 +57,22 @@ class Database{
         return new Promise((resolve, reject) => {
             this.init().then(db => {
                 db.get('SELECT * FROM playlists WHERE ID = ?', [playlist]).then(data => resolve(data["songs"]))
+            })
+        })
+    }
+
+    checkInstallation(){
+        return new Promise((resolve, reject) => {
+            this.init().then(db => {
+                db.run(
+                    `
+                    CREATE TABLE IF NOT EXISTS playlists (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name  VARCHAR(50),
+                        songs  TEXT(999)
+                    );
+                    `
+                );
             })
         })
     }

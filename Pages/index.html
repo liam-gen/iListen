@@ -4,18 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>iListen - Accueil</title>
-  <link rel="stylesheet" href="assets/css/default.css">
-  <link rel="stylesheet" href="assets/css/modal.css">
-  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/default.css">
+  <link rel="stylesheet" href="../assets/css/modal.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
 
-  <script src="cache/libraries/tingle/index.min.js"></script>
-  <link rel="stylesheet" href="cache/libraries/tingle/style.min.css"/>
+  <script src="../assets/libraries/tingle/index.min.js"></script>
+  <link rel="stylesheet" href="../assets/libraries/tingle/style.min.css"/>
 
-  <script src="database.js"></script>
+  <script src="../Classes/DatabaseManager.js"></script>
   
 </head>
 <body>
-  <div class="playlists"></div>
+  <div class="playlists">
+
+  </div>
 
   <div class="status"></div>
 
@@ -81,22 +83,18 @@ function humanFileSize(bytes, si=true, dp=1) {
 
 let clearButton = document.getElementById('clear-cache');
 
-let cacheSize = getFilesizeInBytes(__dirname + "/cache/songs.json") + getDirSize(__dirname + "/downloads");
+let cacheSize = getFilesizeInBytes(require('@electron/remote').app.getPath("userData") + "/Data/songs.json") + getDirSize(require('@electron/remote').app.getPath("userData") + "/Data/downloads");
 
 clearButton.innerHTML = "Vider le cache ("+humanFileSize(cacheSize)+")"
 
 clearButton.onclick = function(){
-    fs.writeFileSync(__dirname + "/cache/songs.json", "{}")
+    fs.writeFileSync(require('@electron/remote').app.getPath("userData") + "Data/songs.json", "{}")
 
-    fs.rmSync(__dirname + "/downloads", {recursive: true});
+    fs.rmSync(require('@electron/remote').app.getPath("userData") + "/Data/downloads", {recursive: true});
 
-    fs.mkdirSync(__dirname + "/downloads");
+    fs.mkdirSync(require('@electron/remote').app.getPath("userData") + "/Data/downloads");
 
-    clearButton.innerHTML = "Vider le cache ("+humanFileSize(getFilesizeInBytes(__dirname + "/cache/songs.json") + getDirSize(__dirname + "/downloads"))+")"
-}
-
-if(getFilesizeInBytes(__dirname + "/cache/songs.json") <= 2){
-    clearButton.remove()
+    clearButton.innerHTML = "Vider le cache ("+humanFileSize(getFilesizeInBytes(require('@electron/remote').app.getPath("userData") + "/Data/songs.json") + getDirSize(require('@electron/remote').app.getPath("userData") + "/Data/downloads"))+")"
 }
 /* LOAD PLAYLISTS */
 

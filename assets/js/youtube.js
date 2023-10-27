@@ -5,14 +5,14 @@ class YouTube{
         this.fs = require('fs');
 
         this.YTDlpWrap = require('yt-dlp-wrap').default;
-        this.ytDlpWrap = new this.YTDlpWrap('yt-dlp.exe');
+        this.ytDlpWrap = new this.YTDlpWrap(__dirname+'/../tools/yt-dlp.exe');
 
         this.db = new Database();
 
         this.playlistId = playlistId;
 
         this.elements = {
-            cache: () => JSON.parse(this.fs.readFileSync(__dirname + "/cache/songs.json", "utf8"))
+            cache: () => JSON.parse(this.fs.readFileSync(require('@electron/remote').app.getPath("userData") + "/Data/songs.json", "utf8"))
         };
 
         this.playlist;
@@ -44,8 +44,10 @@ class YouTube{
     }
 
     loadLocalAudio(video_id){
+
+        ;
         
-        let playlistData = JSON.parse(fs.readFileSync(__dirname+"/downloads/playlist-"+this.playlistId+"/playlist.json", "utf-8"))
+        let playlistData = JSON.parse(fs.readFileSync(require('@electron/remote').app.getPath("userData")+"/Data/downloads/playlist-"+this.playlistId+"/playlist.json", "utf-8"))
 
         let wrapper = document.querySelector('.playlist ul');
 
@@ -101,8 +103,8 @@ class YouTube{
 
 
 
-            if (fs.existsSync(__dirname+"/downloads/playlist-"+global.playlistId+"/playlist.json")) {
-                let playlistData = JSON.parse(fs.readFileSync(__dirname+"/downloads/playlist-"+global.playlistId+"/playlist.json", "utf-8"))
+            if (fs.existsSync(require('@electron/remote').app.getPath("userData")+"/Data/downloads/playlist-"+global.playlistId+"/playlist.json")) {
+                let playlistData = JSON.parse(fs.readFileSync(require('@electron/remote').app.getPath("userData")+"/Data/downloads/playlist-"+global.playlistId+"/playlist.json", "utf-8"))
                 global.playlist.forEach(song => {
                     if(playlistData[song] && fs.existsSync(playlistData[song]["file"])){
                         global.loadLocalAudio(song)
@@ -196,7 +198,7 @@ class YouTube{
         this.getDirectLink(video_id).then(url => {
             this.ytDlpWrap.getVideoInfo('https://www.youtube.com/watch?v='+video_id).then(d => {
                 if(d){
-                    let data = JSON.parse(global.fs.readFileSync(__dirname + "/cache/songs.json", "utf8"));
+                    let data = JSON.parse(global.fs.readFileSync(require('@electron/remote').app.getPath("userData") + "/Data/songs.json", "utf8"));
 
                     data[video_id] = {
                         title: d["title"],
@@ -207,7 +209,7 @@ class YouTube{
 
                     console.log(data)
 
-                    global.fs.writeFileSync(__dirname + "/cache/songs.json", JSON.stringify(data))
+                    global.fs.writeFileSync(require('@electron/remote').app.getPath("userData") + "/Data/songs.json", JSON.stringify(data))
                     
                     global.loadVideo(video_id)
                 }

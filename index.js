@@ -1,7 +1,12 @@
 
-const { app, BrowserWindow, Menu, nativeImage, Tray, Notification, ipcMain } = require('electron');
-const Downloader = require("./downloader")
+const { app, BrowserWindow, Notification, ipcMain } = require('electron');
 const log = require("electron-log")
+
+/* CLASSES */
+const { Window } = require("./Classes/WindowManager")
+const { DataManager } = require("./Classes/DataManager")
+
+require('@electron/remote/main').initialize()
 
 log.transports.file.level = 'info';
 log.transports.file.resolvePathFn = () => __dirname + "/logs/main.log";
@@ -10,9 +15,10 @@ process.on('uncaughtException', function(err) {
   log.error(err)
 });
 
+let dataManager = new DataManager()
+
 let tray;
 let win;
-let wantToClose;
 
 /* AUTO UPDATER */
 
@@ -28,76 +34,9 @@ if (process.platform === 'win32')
     app.setAppUserModelId("iListen Notifications");
 }
 
-function createTray(){
-  const trayicon = nativeImage.createFromPath(__dirname+"/buildResources/logo.ico")
-  tray = new Tray(trayicon)
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: "Ouvrir l'application",
-      click: () => {
-        win.show()
-      }
-    },
-    {
-      label: 'Quitter',
-      click: () => {
-        wantToClose = true;
-        app.quit()
-      }
-    },
-  ])
-
-  tray.setToolTip('iListen')
-
-  tray.setContextMenu(contextMenu)
-
-  tray.on("click", () => {
-    win.show()
-  })
-}
-
-
-  async function createWindow() {
-
-    if (!tray) {
-      createTray()
-    }
-
-    win = new BrowserWindow({
-        height: 600,
-        width: 800,
-        autoHideMenuBar: true,
-        icon: __dirname+"/buildResources/logo.ico",
-        webPreferences: {
-            nodeIntegration: true,
-            enableRemoteModule: true,
-            contextIsolation: false
-        },
-        title: 'My App',
-    });
-
-    log.info("Creating main window")
   
-    win.setTitle('My App');
-    win.loadFile('index.html');
-
-    win.on('close', event=>{
-        if(!wantToClose)
-        {
-          event.preventDefault();
-          win.hide();
-          new Notification({
-            title: "iListen",
-            body: "iListen est minimsé mais tourne tojours !",
-            icon: __dirname+"/buildResources/logo.ico",
-            silent: true
-          }).show()
-        }
-      
-    })
-
-
-    /* UOPDATES */
+app.whenReady().then(() => {
+    win = new Window(tray);
 
     autoUpdater.on('checking-for-update', () => {
       sendStatusToWindow('Recherche de mise à jour...');
@@ -116,32 +55,20 @@ function createTray(){
     autoUpdater.on('update-downloaded', (info) => {
       sendStatusToWindow('Mise à jour téléchargée');
     });
-  }
-
-
-
-  ipcMain.on('download-playlist', (event, playlist) => {
-    let i = new Downloader();
-    i.downloadPlaylist(playlist, console.log).then(() => {
-      win.webContents.send("download-finished", {})
-      console.log("Downlaoded")
-    })
-  })
+});
   
-  app.whenReady().then(createWindow);
-  
-  app.on('window-all-closed', () => {
+app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
       app.quit()
     }
-  });
+});
 
-  app.on('ready', function()  {
+app.on('ready', function()  {
     autoUpdater.checkForUpdatesAndNotify();
-  });
+});
   
-  app.on('activate', () => {
+app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
+        win = new Window(tray)
     }
-  });
+});

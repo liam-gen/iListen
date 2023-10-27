@@ -1,0 +1,3 @@
+- Restructuration totale
+- Optimisation des fichiers
+- Stockage des données dans le dossier AppData

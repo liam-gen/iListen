@@ -54,7 +54,7 @@ var editModal = new tingle.modal({
             document.querySelector("#playlist-name").value = value;
         })
         
-        let cache = JSON.parse(fs.readFileSync(__dirname+"/cache/songs.json", "utf8"));
+        let cache = JSON.parse(fs.readFileSync(require('@electron/remote').app.getPath("userData") + "/Data/songs.json", "utf8"));
         db.getPlaylistSongs(playlistID).then(data => {
             
             console.log(JSON.parse(data))

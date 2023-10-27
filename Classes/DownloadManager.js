@@ -1,12 +1,14 @@
 const YTDlpWrap = require('yt-dlp-wrap').default;
-const ytDlpWrap = new YTDlpWrap(__dirname+'/yt-dlp.exe');
-const Database = require('./database')
+const ytDlpWrap = new YTDlpWrap(__dirname+'/../tools/yt-dlp.exe');
+const Database = require('./DatabaseManager')
 const fs = require('fs');
+
+const {appdata} = require("../default")
 
 const log = require("electron-log")
 
 log.transports.file.level = 'info';
-log.transports.file.resolvePathFn = () => __dirname + "/logs/main.log";
+log.transports.file.resolvePathFn = () => __dirname + "/../logs/main.log";
 
 var https = require('https');
 
@@ -34,7 +36,7 @@ class Downloader{
         let global = this;
 
         return new Promise(function(resolve, reject){
-            let folder = __dirname+"/downloads/playlist-"+id
+            let folder = appdata+"/Data/downloads/playlist-"+id
         
 
             if (!fs.existsSync(folder)){
@@ -105,4 +107,4 @@ class Downloader{
     }
 }
 
-module.exports = Downloader;
+module.exports.Downloader = Downloader;
