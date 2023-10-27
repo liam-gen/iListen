@@ -214,3 +214,9 @@ input[type="range"]::-moz-range-track {
 .themes div.gray{
     background: #5b5b5d
 }
+
+.status{
+    position: absolute;
+    bottom: 20px;
+    left: 80px;
+}

@@ -105,16 +105,12 @@ function createTray(){
     autoUpdater.on('update-available', (info) => {
       sendStatusToWindow('Mise à jour disponible.');
     })
-    autoUpdater.on('update-not-available', (info) => {
-      sendStatusToWindow('Aucune mise à jour disponible.');
-    })
     autoUpdater.on('error', (err) => {
       sendStatusToWindow('Erreur lors de la tentative de mise à jour. ' + err);
     })
     autoUpdater.on('download-progress', (progressObj) => {
-      let log_message = "Vitesse : " + progressObj.bytesPerSecond;
+      let log_message = "Mise à jour en cours. Vitesse : " + Math.round((progressObj.bytesPerSecond) / 1000000)+ " Mbits/s";
       log_message = log_message + ' - Téléchargé ' + progressObj.percent + '%';
-      log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
       sendStatusToWindow(log_message);
     })
     autoUpdater.on('update-downloaded', (info) => {

@@ -19,7 +19,7 @@
 
   </div>
 
-  <div class="message"></div>
+  <div class="status"></div>
 
   <div class="wrapper">
     <button id="clear-cache">Vider le cache</button>
@@ -149,7 +149,7 @@ modal.addFooterBtn('Annuler', 'tingle-btn tingle-btn--danger', function() {
 
 const {ipcRenderer} = require('electron');
 ipcRenderer.on('message', function(event, text) {
- document.querySelector(".message").innerHTML = text
+ document.querySelector(".status").innerHTML = text
 })
 
 </script>

@@ -48,8 +48,6 @@
         <div id="menu-bar">
             <i class="fa-solid fa-home fa-2xl" onclick="goTo('index.html')"></i>
             <i class="fa-solid fa-info fa-2xl" id="open-infos"></i>
-            <!--<i class="fa-solid fa-music fa-2xl" onclick="goTo('playlists.html')"></i>
-            <i class="fa-solid fa-heart fa-2xl" onclick="goTo('favoris.html')"></i>-->
 
             <div class="themes">
                 <div class="purple" theme="purple"></div>
@@ -58,6 +56,8 @@
                 <div class="gray" theme="gray"></div>
             </div>
         </div>
+
+        <div class="status"></div>
 
         <div class="player">
 
@@ -121,6 +121,10 @@
                 return false;
             },
         });
+
+        ipcRenderer.on('message', function(event, text) {
+            document.querySelector(".status").innerHTML = text
+        })
 
         downloadModal.open()
 

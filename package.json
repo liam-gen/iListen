@@ -10,9 +10,13 @@
     "start": "electron .",
     "package": "electron-packager . iListen --platform=win32 --arch=x64 --overwrite --icon=build/logo.ico",
     "publish": "electron-builder --win -p always",
-    "build": "electron-builder --win"
+    "build": "electron-builder --win",
+    "prod": "set NODE_ENV=\"production\" && electron ."
   },
   "build": {
+    "productName": "iListen",
+    "appId": "com.liamgenjs.ilisten",
+    "copyright": "Copyright © 2023 liamgen.js",
     "publish": [
       {
         "provider": "github",
@@ -26,7 +30,7 @@
     }
   },
   "name": "ilisten",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "keywords": [],
   "author": "liamgen.js",
