@@ -53,8 +53,3 @@ body{
     background-color: var(--bg-color);
 }
 
-.status{
-    position: absolute;
-    bottom: 20px;
-    left: 80px;
-}
