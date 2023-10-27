@@ -4,7 +4,6 @@ const fs = require("fs")
 
 class Database{
     constructor(path=__dirname+"/cache/database.db"){
-        fs.writeFileSync("output.log", __dirname+"/cache/database.db")
         this.path = path;
 
         this.init()

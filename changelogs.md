@@ -1,0 +1,5 @@
+- Optimisation du temps de chargement
+- Les playlists sont maintenant téléchargables
+- Ajout d'un visualizer d'audio sur l'affiche du son
+- Ajout de la mise à jour automatique
+- Changement de la gestion des thèmes

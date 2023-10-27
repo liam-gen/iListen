@@ -26,27 +26,64 @@ class YouTube{
 
     urlExist(url) {
         return new Promise(async (res, rej) => {
-          fetch(url).then(response => {
-            if (response.status == 200) {
-                console.log("URL is valid")
-              res(true)
-            } else {
-              res(false)  
-            }
-          });
+          setTimeout(() => {
+            let expireTime = new URL(url).searchParams.get("expire")
+            res(!(new Date().getTime()/1000 > expireTime))
+          }, 1)
         })
     };
 
     loadVideo(video_id){
         this.addLI(video_id).then(() => {
             if(this.index == this.playlist.length){
-                setTimeout(() => {
-                    window.player = new Player(this.beautifulPlaylist);
-                    document.querySelector('#loader-bg').remove();
-                    document.querySelector('#load').remove();
-                }, 2000)
+                window.player = new Player(this.beautifulPlaylist);
+                document.querySelector('#loader-bg') ? document.querySelector('#loader-bg').remove() : "";
+                document.querySelector('#load') ? document.querySelector('#load').remove() : "";
             }
         })
+    }
+
+    loadLocalAudio(video_id){
+        
+        let playlistData = JSON.parse(fs.readFileSync(__dirname+"/downloads/playlist-"+this.playlistId+"/playlist.json", "utf-8"))
+
+        let wrapper = document.querySelector('.playlist ul');
+
+            let data = this.elements.cache();
+
+            let li = document.createElement('li');
+            li.setAttribute('data-src', playlistData[video_id]["file"]);
+            li.setAttribute('data-author', playlistData[video_id]["author"]);
+            li.setAttribute('data-name', playlistData[video_id]["title"]);
+            li.setAttribute('data-cover', playlistData[video_id]["thumbnail"]);
+
+            this.beautifulPlaylist.push({
+                name: playlistData[video_id]["title"],
+                author: playlistData[video_id]["author"],
+                src: playlistData[video_id]["file"],
+                cover: playlistData[video_id]["thumbnail"]
+            })
+
+            li.innerHTML = `<i class="fa-solid fa-check" style="color: green"></i>&nbsp;`+data[video_id]["title"];
+
+            wrapper.appendChild(li)
+
+            let i = this.index;
+    
+            li.onclick = function(){
+                window.player.init(i).then(() => {
+                    window.player.play()
+                    console.log("Loading downloaded audio with id "+i)
+                })
+            }
+
+            this.index += 1;
+
+            if(this.index == this.playlist.length){
+                window.player = new Player(this.beautifulPlaylist);
+               document.querySelector('#loader-bg').remove();
+               document.querySelector('#load').remove();
+           }
     }
 
     init(){
@@ -60,21 +97,39 @@ class YouTube{
             }
             global.playlist = songs;
 
-            global.playlist.forEach(song => {
-                if(global.elements.cache()[song]){
-                    global.urlExist(global.elements.cache()[song]["url"]).then(res => {
-                        if(res){
-                            global.loadVideo(song)
-                        }
-                        else{
-                            global.cacheVideo(song)
-                        }
-                    })
-                }
-                else{
-                    global.cacheVideo(song);
-                }
-            })
+            console.log(global)
+
+
+
+            if (fs.existsSync(__dirname+"/downloads/playlist-"+global.playlistId+"/playlist.json")) {
+                let playlistData = JSON.parse(fs.readFileSync(__dirname+"/downloads/playlist-"+global.playlistId+"/playlist.json", "utf-8"))
+                global.playlist.forEach(song => {
+                    if(playlistData[song] && fs.existsSync(playlistData[song]["file"])){
+                        global.loadLocalAudio(song)
+                    }
+                    else{
+                        global.loadVideo(song)
+                    }
+                })
+            }
+            else{
+                global.playlist.forEach(song => {
+                    if(global.elements.cache()[song]){
+                        global.urlExist(global.elements.cache()[song]["url"]).then(res => {
+                            if(res){
+                                global.loadVideo(song)
+                            }
+                            else{
+                                global.cacheVideo(song)
+                            }
+                        })
+                    }
+                    else{
+                        global.cacheVideo(song);
+                    }
+                })
+            }
+           
         })
  
     }
@@ -99,7 +154,7 @@ class YouTube{
                 cover: data[video_id]["thumbnail"]
             })
 
-            li.innerHTML = data[video_id]["title"];
+            li.innerHTML = `<i class="fa-solid fa-cloud" style="color: gray"></i>&nbsp;`+data[video_id]["title"];
 
             await wrapper.appendChild(li)
 
@@ -124,9 +179,13 @@ class YouTube{
             
             this.ytDlpWrap.execPromise([
                 'https://www.youtube.com/watch?v='+video_id,
-                "--dump-json"
+                "--dump-json",
+                "-f",
+                "bestaudio[ext=m4a]",
             ]).then((response) => {
-                res(JSON.parse(response)["requested_formats"][1]["url"])
+                let arr = JSON.parse(response)["formats"].filter(e => e.audio_ext == "webm");
+                let audio = arr[arr.length - 1]
+                res(audio["url"])
             });
         })
         
@@ -142,7 +201,7 @@ class YouTube{
                     data[video_id] = {
                         title: d["title"],
                         uploader: d["uploader"],
-                        url: d["url"],
+                        url: url,
                         thumbnail: d["thumbnail"]
                     };
 

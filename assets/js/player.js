@@ -47,6 +47,8 @@ class Player{
             glob.audio.src = glob.currentSong.src;
     
             glob.audio.volume = 0.5;
+
+            console.log(glob.currentSong)
     
             glob.elements.author.innerText = glob.currentSong.author;
             glob.elements.title.innerText = glob.currentSong.name;

@@ -19,6 +19,8 @@
 
   </div>
 
+  <div class="message"></div>
+
   <div class="wrapper">
     <button id="clear-cache">Vider le cache</button>
     <button id="create-playlist">Créer une playlist</button>
@@ -29,11 +31,33 @@
 <script>
 let db = new Database();
 
+let path = require("path")
+
 function getFilesizeInBytes(filename) {
     var stats = fs.statSync(filename);
     var fileSizeInBytes = stats.size;
     return fileSizeInBytes;
 }
+
+
+
+const getDirSize = (dirPath) => {
+  let size = 0;
+  const files = fs.readdirSync(dirPath);
+
+  for (let i = 0; i < files.length; i++) {
+    const filePath = path.join(dirPath, files[i]);
+    const stats = fs.statSync(filePath);
+
+    if (stats.isFile()) {
+      size += stats.size;
+    } else if (stats.isDirectory()) {
+      size += getDirSize(filePath);
+    }
+  }
+
+  return size;
+};
 
 function humanFileSize(bytes, si=true, dp=1) {
   const thresh = si ? 1000 : 1024;
@@ -59,11 +83,18 @@ function humanFileSize(bytes, si=true, dp=1) {
 
 let clearButton = document.getElementById('clear-cache');
 
-clearButton.innerHTML = "Vider le cache ("+humanFileSize(getFilesizeInBytes(__dirname + "/cache/songs.json"))+")"
+let cacheSize = getFilesizeInBytes(__dirname + "/cache/songs.json") + getDirSize(__dirname + "/downloads");
+
+clearButton.innerHTML = "Vider le cache ("+humanFileSize(cacheSize)+")"
 
 clearButton.onclick = function(){
     fs.writeFileSync(__dirname + "/cache/songs.json", "{}")
-    clearButton.innerHTML = "Vider le cache ("+humanFileSize(getFilesizeInBytes(__dirname + "/cache/songs.json"))+")"
+
+    fs.rmSync(__dirname + "/downloads", {recursive: true});
+
+    fs.mkdirSync(__dirname + "/downloads");
+
+    clearButton.innerHTML = "Vider le cache ("+humanFileSize(getFilesizeInBytes(__dirname + "/cache/songs.json") + getDirSize(__dirname + "/downloads"))+")"
 }
 
 if(getFilesizeInBytes(__dirname + "/cache/songs.json") <= 2){
@@ -115,6 +146,11 @@ modal.addFooterBtn('Créer', 'tingle-btn tingle-btn--primary', function() {
 modal.addFooterBtn('Annuler', 'tingle-btn tingle-btn--danger', function() {
     modal.close();
 });
+
+const {ipcRenderer} = require('electron');
+ipcRenderer.on('message', function(event, text) {
+ document.querySelector(".message").innerHTML = text
+})
 
 </script>
 

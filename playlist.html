@@ -23,7 +23,7 @@
     <div id="loader-bg"></div>
     <main>
         <div id="song-action-bar">
-            <div class="repeat">
+            <div class="repeat" style="color: white;" title="Répéter cette musique">
                 <i class="fa-solid fa-repeat fa-xl"></i>
             </div>
 
@@ -32,9 +32,11 @@
                 https://lyrist.vercel.app/api/Waiting%20for%20love
             -->
 
-            <a id="add-song" style="color: black;"><i class="fa-solid fa-add fa-xl"></i></a>
+            <a id="add-song" style="color: white;" title="Ajouter une musique"><i class="fa-solid fa-add fa-xl"></i></a>
 
-            <a id="edit-playlist" style="color: black;"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
+            <a id="edit-playlist" style="color: white;" title="Modifier la playlist"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
+
+            <a id="download-playlist" style="color: white;" title="Télécharger la playlist"><i class="fa-solid fa-download fa-xl"></i></a>
         </div>
 
         <script>
@@ -65,6 +67,7 @@
     
                 <div id="song-data">
                     <img src="https://static.vecteezy.com/system/resources/previews/010/008/086/non_2x/background-dimension-3d-graphic-message-board-for-text-and-message-design-line-shadow-for-modern-web-design-free-vector.jpg" alt="" width="150px">
+                    
                     <div class="title"></div>
                     <div class="author"></div>
                 </div>
@@ -96,11 +99,43 @@
                 </ul>
             </div>
         </div>
+
+        <!--<canvas id="canvas" style="position: absolute;z-index: -1;width: 100%;height: 100vh;"></canvas>-->
     </main>
 
     <script src="assets/js/player.js"></script>
     <script src="assets/js/youtube.js"></script>
     <script src="assets/js/playlist.js"></script>
+
+    <script>
+        const {ipcRenderer} = require("electron");
+        document.getElementById("download-playlist").addEventListener("click", function(){
+            ipcRenderer.send("download-playlist", new URL(location.href).searchParams.get("id"))
+
+            var downloadModal = new tingle.modal({
+                closeMethods: [],
+                footer: true,
+                stickyFooter: true,
+                beforeClose: function() {
+                    console.log("ok")
+                return false;
+            },
+        });
+
+        downloadModal.open()
+
+        downloadModal.setContent(`
+            <h2>Veuillez patienter pendant que nous téléchargons vos musiques !</h2>
+        `);
+
+
+        })
+
+        ipcRenderer.on("download-finished", () => {
+            alert("Téléchargement terminé !")
+            location.reload()
+        })
+    </script>
 
 </body>
 </html>

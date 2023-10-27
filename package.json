@@ -1,22 +1,39 @@
 {
   "dependencies": {
+    "electron-log": "^5.0.0",
+    "electron-updater": "^6.1.4",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.6",
     "yt-dlp-wrap": "^2.3.12"
   },
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager . iListen --platform=win32 --arch=x64 --overwrite --icon=build/logo.ico"
+    "package": "electron-packager . iListen --platform=win32 --arch=x64 --overwrite --icon=build/logo.ico",
+    "publish": "electron-builder --win -p always",
+    "build": "electron-builder --win"
+  },
+  "build": {
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "liam-gen",
+        "repo": "iListen"
+      }
+    ],
+    "asar": false,
+    "win": {
+      "icon": "buildResources/256.png"
+    }
   },
   "name": "ilisten",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "index.js",
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "liamgen.js",
+  "license": "MIT",
+  "description": "L'app de musique gratuite !",
   "devDependencies": {
     "electron": "^27.0.2",
-    "electron-packager": "^17.1.2"
+    "electron-builder": "^24.6.4"
   }
 }
