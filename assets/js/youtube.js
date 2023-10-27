@@ -110,7 +110,19 @@ class YouTube{
                         global.loadLocalAudio(song)
                     }
                     else{
-                        global.loadVideo(song)
+                        if(global.elements.cache()[song]){
+                            global.urlExist(global.elements.cache()[song]["url"]).then(res => {
+                                if(res){
+                                    global.loadVideo(song)
+                                }
+                                else{
+                                    global.cacheVideo(song)
+                                }
+                            })
+                        }
+                        else{
+                            global.cacheVideo(song);
+                        }
                     }
                 })
             }

@@ -88,7 +88,7 @@ let cacheSize = getFilesizeInBytes(require('@electron/remote').app.getPath("user
 clearButton.innerHTML = "Vider le cache ("+humanFileSize(cacheSize)+")"
 
 clearButton.onclick = function(){
-    fs.writeFileSync(require('@electron/remote').app.getPath("userData") + "Data/songs.json", "{}")
+    fs.writeFileSync(require('@electron/remote').app.getPath("userData") + "/Data/songs.json", "{}")
 
     fs.rmSync(require('@electron/remote').app.getPath("userData") + "/Data/downloads", {recursive: true});
 

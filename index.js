@@ -11,6 +11,8 @@ require('@electron/remote/main').initialize()
 log.transports.file.level = 'info';
 log.transports.file.resolvePathFn = () => __dirname + "/logs/main.log";
 
+
+
 process.on('uncaughtException', function(err) {
   log.error(err)
 });
@@ -23,6 +25,8 @@ let win;
 /* AUTO UPDATER */
 
 const {autoUpdater} = require("electron-updater");
+
+autoUpdater.logger = log
 
 function sendStatusToWindow(text) {
   log.info(text);
@@ -37,24 +41,6 @@ if (process.platform === 'win32')
   
 app.whenReady().then(() => {
     win = new Window(tray);
-
-    autoUpdater.on('checking-for-update', () => {
-      sendStatusToWindow('Recherche de mise à jour...');
-    })
-    autoUpdater.on('update-available', (info) => {
-      sendStatusToWindow('Mise à jour disponible.');
-    })
-    autoUpdater.on('error', (err) => {
-      sendStatusToWindow('Erreur lors de la tentative de mise à jour. ' + err);
-    })
-    autoUpdater.on('download-progress', (progressObj) => {
-      let log_message = "Mise à jour en cours. Vitesse : " + Math.round((progressObj.bytesPerSecond) / 1000000)+ " Mbits/s";
-      log_message = log_message + ' - Téléchargé ' + progressObj.percent + '%';
-      sendStatusToWindow(log_message);
-    })
-    autoUpdater.on('update-downloaded', (info) => {
-      sendStatusToWindow('Mise à jour téléchargée');
-    });
 });
   
 app.on('window-all-closed', () => {
