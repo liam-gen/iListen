@@ -181,7 +181,7 @@ const updateOnlineStatus = () => {
       const playlistName = document.getElementById("playlist-name").value;
 
       if(document.getElementById("playlist-id").value){
-        httpGetAsync(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&key=AIzaSyDGW4rWSZcMGq1-wN1f-se_skHxIk4D2w8&playlistId=${document.getElementById("playlist-id").value}&maxResults=25`, function(data){
+        httpGetAsync(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&key=SECRET_KEY&playlistId=${document.getElementById("playlist-id").value}&maxResults=25`, function(data){
             songs = JSON.parse(data)["items"].map(item => item["snippet"]["resourceId"]["videoId"])
 
             if(songs){
