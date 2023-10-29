@@ -51,11 +51,33 @@ class Window{
               }
         })
 
+        this.window.webContents.setWindowOpenHandler(({ url }) => {
+          if (url.startsWith('file://')) {
+            return {
+              action: 'allow',
+              overrideBrowserWindowOptions: {
+                frame: false,
+                fullscreenable: false,
+                //resizable: false,
+                autoHideMenuBar: true,
+                webPreferences: {
+                  contextIsolation: false,
+                  nodeIntegration: true
+                },
+                height: 500
+              }
+            }
+          }
+          var start = (process.platform == 'darwin'? 'open': process.platform == 'win32'? 'start': 'xdg-open');
+        require('child_process').exec(start + ' ' + url);
+          return { action: 'deny' }
+        })
+
 
 
         ipcMain.on('download-playlist', (event, playlist) => {
             let i = new Downloader();
-            i.downloadPlaylist(playlist, console.log).then(() => {
+            i.downloadPlaylist(playlist, (data) => {event.sender.send("playlist-progress", data);console.log(data)}).then(() => {
               this.window.webContents.send("download-finished", {})
               console.log("Playlist downloaded !")
             })

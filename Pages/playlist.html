@@ -107,36 +107,25 @@
 
     <script>
         const {ipcRenderer} = require("electron");
+        let downloadWindow;
         document.getElementById("download-playlist").addEventListener("click", function(){
-            ipcRenderer.send("download-playlist", new URL(location.href).searchParams.get("id"))
-
-            var downloadModal = new tingle.modal({
-                closeMethods: [],
-                footer: true,
-                stickyFooter: true,
-                beforeClose: function() {
-                    console.log("ok")
-                return false;
-            },
-        });
+            
+        db.getPlaylistSongs(new URL(location.href).searchParams.get("id")).then(songs => {
+            downloadWindow = window.open('download.html?id='+new URL(location.href).searchParams.get("id")+"&songs="+songs, '_blank', 'nodeIntegration=yes')
+        })
+            
+        })
 
         ipcRenderer.on('message', function(event, text) {
             document.querySelector(".status").innerHTML = text
         })
 
-        downloadModal.open()
-
-        downloadModal.setContent(`
-            <h2>Veuillez patienter pendant que nous téléchargons vos musiques !</h2>
-        `);
-
-
-        })
-
         ipcRenderer.on("download-finished", () => {
-            alert("Téléchargement terminé !")
+            downloadWindow.close()
             location.reload()
         })
+
+        ipcRenderer.on("playlist-progress", console.log)
     </script>
 
 </body>

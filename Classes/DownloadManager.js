@@ -26,10 +26,20 @@ var download = function(url, dest, cb) {
   });
 };
 
+function* enumerate(iterable) {
+    let i = 0;
+
+    for (const x of iterable) {
+        yield [i, x];
+        i++;
+    }
+}
+
 class Downloader{
     constructor(){
         this.db = new Database();
     }
+
 
     downloadPlaylist(id, onProgress){
 
@@ -54,9 +64,11 @@ class Downloader{
                 songs = JSON.parse(songs)
     
                 const songsNumber = songs.length;
-    
-                songs.forEach(async (song, index) => {
+
+                for await(const [index, song] of enumerate(songs)){
+
                     log.info("Downloading data for "+song)
+
                     await ytDlpWrap
                     .exec([
                         'https://www.youtube.com/watch?v='+song,
@@ -68,7 +80,7 @@ class Downloader{
                     ])
                     .on('progress', (progress) => {
                         progress["totalSongs"] = songsNumber;
-                        progress["currentSOng"] = index + 1;
+                        progress["currentSong"] = index + 1;
                         onProgress(progress)
                     }
                     
@@ -99,7 +111,13 @@ class Downloader{
                         });
     
                 });
-                })
+                }
+    
+
+
+
+
+
             })
         })
 

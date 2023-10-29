@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iListen | Téléchargement</title>
+</head>
+<body>
+    <style>
+
+        html, body{
+            margin: 0;
+            width: 100%;
+            padding: 0;
+            font-family: system-ui;
+            background: #222;
+            color: white;
+        }
+
+        main{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        span.orange {
+            color: orange
+        }
+
+        .progress {
+            margin:20px auto;
+            padding:0;
+            width:90%;
+            height:30px;
+            overflow:hidden;
+            background:#e5e5e5;
+            border-radius:6px;
+        }
+
+        .bar {
+            position:relative;
+            float:left;
+            min-width:1%;
+            height:100%;
+            background:rgb(12, 168, 20);
+        }
+
+        .percent {
+            position:absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            margin:0;
+            font-family:tahoma,arial,helvetica;
+            font-size:12px;
+            color:white;
+            z-index: 999;
+        }
+    </style>
+
+    <main>
+        <h1>Téléchargement de votre playlist !</h1>
+
+        <span class="orange">Veuillez ne pas fermer l'application !</span>
+
+        <ul></ul>
+    </main>
+
+    <script>
+        const { ipcRenderer } = require("electron");
+
+        let songs = JSON.parse(new URL(location.href).searchParams.get("songs"));
+        songs.forEach((song, index) => {
+            let container = document.querySelector("ul");
+            let li = document.createElement("li");
+
+            li.innerHTML = "Musique "+(index+1);
+            li.setAttribute("song-index", index + 1)
+
+            span = document.createElement("span");
+            span.innerHTML = " - 0% "
+            li.appendChild(span);
+
+            progress = document.createElement("progress");
+            progress.max = 100
+            li.appendChild(progress);
+
+            container.appendChild(li)
+        })
+
+        ipcRenderer.send("download-playlist", new URL(location.href).searchParams.get("id"))
+        ipcRenderer.on("playlist-progress", (e, data) => {
+            document.querySelector('li[song-index="'+data["currentSong"]+'"] span').innerHTML = " - "+data["percent"]+"% "
+            document.querySelector('li[song-index="'+data["currentSong"]+'"] progress').value = data["percent"]
+        })
+    </script>
+</body>
+</html>

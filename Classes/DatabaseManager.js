@@ -7,10 +7,14 @@ try{
     appdata = require("../default").appdata
 }
 catch(e){
-    appdata = require('@electron/remote').app.getPath("userData");
+    try{
+        appdata = require('@electron/remote').app.getPath("userData");
+    }
+    catch(e){
+        appdata = new URL(location.href).searchParams.get("path");
+    }
 }
 
-console.log(appdata)
 class Database{
     constructor(path=appdata+"/Data/database.db"){
         this.path = path;
