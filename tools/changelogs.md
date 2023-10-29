@@ -1,1 +1,4 @@
-- Réglages de nombreux bugs
+- Réglage bugs
+- Améliorations visuelles
+- Importation de playlists YouTube
+- Ajout d'une publicité non intrusive dite "acceptable" et enlevable facilement

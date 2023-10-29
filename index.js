@@ -41,6 +41,8 @@ if (process.platform === 'win32')
   
 app.whenReady().then(() => {
     win = new Window(tray);
+
+    win.window.maximize()
 });
   
 app.on('window-all-closed', () => {

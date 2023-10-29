@@ -1,9 +1,2 @@
-- Restructuration totale
-- Optimiser les fichiers
-- Tout orienter objet
-- Se libérer de quelques modules
-- Mettre les données utilisateur dans AppData
-  - Créer si il n'existe pas le fichier database.db
-  - Créer si elle n'existe pas la table PLAYLISTS
-  - Créer si il n'existe pas le dossier downloads
-  - Créer si il n'existe pas le dossier logs
+- Importation de playlists YouTube : Erreurs
+- Passer en 1.0.6

@@ -1,3 +1,14 @@
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
 const updateOnlineStatus = () => {
     if(!navigator.onLine){
       document.querySelector(".ads") ? document.querySelector(".ads").style.display = "none" : ""
@@ -158,15 +169,37 @@ const updateOnlineStatus = () => {
           Entrez le nom de votre playlist
       </p>
       <input id="playlist-name" type="text" placeholder="Nom de la playlist...">
+
+      <p>
+          Importez depuis YouTube (facultatif)
+      </p>
+      <input id="playlist-id" type="text" placeholder="ID de la playlist">
   `);
   
   modal.addFooterBtn('Créer', 'tingle-btn tingle-btn--primary', function() {
   
       const playlistName = document.getElementById("playlist-name").value;
+
+      if(document.getElementById("playlist-id").value){
+        httpGetAsync(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&key=AIzaSyDGW4rWSZcMGq1-wN1f-se_skHxIk4D2w8&playlistId=${document.getElementById("playlist-id").value}&maxResults=25`, function(data){
+            songs = JSON.parse(data)["items"].map(item => item["snippet"]["resourceId"]["videoId"])
+
+            if(songs){
+                db.createPlaylistWithSongs(playlistName, songs).then(() => {
+                    location.reload()
+                })
+            }
+        })
+        
+        
+      }
+      else{
+        db.createPlaylist(playlistName).then(() => {
+            location.reload()
+        })
+      }
   
-      db.createPlaylist(playlistName).then(() => {
-          location.reload()
-      })
+      
   });
   
   modal.addFooterBtn('Annuler', 'tingle-btn tingle-btn--danger', function() {
