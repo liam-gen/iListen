@@ -1,2 +1,1 @@
-- Importation de playlists YouTube : Erreurs
 - Passer en 1.0.6
