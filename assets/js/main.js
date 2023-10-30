@@ -183,11 +183,11 @@ const updateOnlineStatus = () => {
       if(document.getElementById("playlist-id").value){
         httpGetAsync(`https://getsiteping.000webhostapp.com/youtubeapi.php?id=`+document.getElementById("playlist-id").value, function(data){
 
-          if(data == "null"){
-             modal.close()
-             return alert("Impossible de créer la playlist");
-              
-          }
+        if(data == "null"){
+           modal.close()
+           return alert("Impossible de créer la playlist");
+            
+        }
             songs = JSON.parse(data)["items"].map(item => item["snippet"]["resourceId"]["videoId"])
 
             if(songs){
