@@ -2,12 +2,6 @@
 const { app, BrowserWindow, Notification, ipcMain } = require('electron');
 const log = require("electron-log")
 
-require('dotenv').config({
-  path: app.isPackaged
-      ? path.join(process.resourcesPath, '.env')
-      : path.resolve(process.cwd(), '.env'),
-})
-
 /* CLASSES */
 const { Window } = require("./Classes/WindowManager")
 const { DataManager } = require("./Classes/DataManager")
