@@ -34,42 +34,6 @@ const updateOnlineStatus = () => {
   
   }
   
-  
-  document.getElementById("close-ad").onclick = function(){
-  
-    var adsModal = new tingle.modal({
-        footer: true,
-        stickyFooter: false,
-        closeMethods: ['button', 'escape'],
-        closeLabel: "Fermer",
-    });
-  
-    adsModal.setContent(`
-        <h1>Voulez vous vraiment supprimer les publicités ?</h1>
-        <p>
-            Les publicités <b>nous aident</b> à financer le projet et à <b>l'améliorer</b> pour que vous puissiez l'utiliser simplement !
-        </p>
-    `);
-  
-    adsModal.addFooterBtn('Supprimer', 'tingle-btn tingle-btn--warning', function() {
-  
-      document.querySelector(".ads").remove()
-      localStorage.setItem("remove-ads", true)
-      adsModal.close()
-  
-    });
-  
-    adsModal.addFooterBtn('Annuler', 'tingle-btn tingle-btn--primary', function() {
-      adsModal.close();
-    });
-  
-    adsModal.open()
-  }
-  
-  if(localStorage.getItem("remove-ads")){
-    document.querySelector(".ads").remove()
-  } 
-  
   let db = new Database();
   
   let path = require("path")
