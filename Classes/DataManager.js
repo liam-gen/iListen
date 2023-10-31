@@ -6,10 +6,11 @@ class DataManager{
     constructor(){
         this.path = appdata+"/Data";
 
+        this.checkDataFolder();
+
         this.database = new Database()
 
         this.checkCache()
-        this.checkDataFolder();
         this.checkDatabase();
         this.checkDownloadFolder()
     }

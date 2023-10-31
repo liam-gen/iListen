@@ -24,6 +24,7 @@ let win;
 
 /* AUTO UPDATER */
 
+
 const {autoUpdater} = require("electron-updater");
 
 autoUpdater.logger = log
