@@ -139,7 +139,7 @@ infoModal.setContent(`
     <h1>Informations</h1>
     <p>iListen v1.0.0</p>
     <p>Développeur : liamgen.js (https://liamgenjs.vercel.app)</p>
-    <p>Node.js : v22.2.0</p>
+    <p>Node.js : v21.7.3</p>
     <p>Electron.js : v23.3.11</p>
 `);
 
