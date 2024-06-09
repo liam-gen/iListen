@@ -14,25 +14,45 @@ var addSongModal = new tingle.modal({
 
 document.getElementById("add-song").onclick = function(){
     addSongModal.open()
+
+    document.getElementById("song-id").addEventListener("input", () => {
+        const youtubesearchapi = require("youtube-search-api");
+        const wrapper = document.getElementById("song-search-result");
+
+        youtubesearchapi.GetListByKeyword(document.getElementById("song-id").value, false, 3, [{type:"video"}]).then(data => {
+            wrapper.innerHTML = ""
+            const songs = data.items;
+            console.log(data)
+
+            songs.forEach(song => {
+                if(song.type != "video") return
+                let container = document.createElement("div");
+                container.innerHTML = `
+                <img width="150px" style="border-radius: 8px;" src="${song.thumbnail.thumbnails[0].url.startsWith("//") ? "https:"+song.thumbnail.thumbnails[0].url : song.thumbnail.thumbnails[0].url}">
+                <p>${song.title}</p>
+                `
+
+                container.addEventListener("dblclick", () => {
+                    db.addSongToPlaylist(new URL(location.href).searchParams.get("id"), song.id).then(() => {
+                        location.reload()
+                    })
+                })
+                wrapper.appendChild(container)
+            })
+
+            
+        })
+    })
 }
 
 addSongModal.setContent(`
     <h1>Ajouter une musique</h1>
     <p>
-        Entrez l'identifiant d'une vidéo YouTube
+        Recherchez la musique...
     </p>
-    <input id="song-id" type="text" placeholder="Identifiant de la vidéo YouTube...">
+    <input id="song-id" type="text" placeholder="Entrez le titre de la musique">
+    <div id="song-search-result"></div>
 `);
-
-addSongModal.addFooterBtn('Ajouter', 'tingle-btn tingle-btn--primary', function() {
-    const fs = require("fs");
-    const songId = document.getElementById("song-id").value;
-
-    db.addSongToPlaylist(new URL(location.href).searchParams.get("id"), songId).then(() => {
-        location.reload()
-    })
-
-});
 
 addSongModal.addFooterBtn('Annuler', 'tingle-btn tingle-btn--danger', function() {
     addSongModal.close();
@@ -119,8 +139,8 @@ infoModal.setContent(`
     <h1>Informations</h1>
     <p>iListen v1.0.0</p>
     <p>Développeur : liamgen.js (https://liamgenjs.vercel.app)</p>
-    <p>Node.js : v18.17.1</p>
-    <p>Electron.js : v27.0.2</p>
+    <p>Node.js : v22.2.0</p>
+    <p>Electron.js : v23.3.11</p>
 `);
 
 infoModal.addFooterBtn('Ok', 'tingle-btn tingle-btn--primary', function() {

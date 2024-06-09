@@ -91,6 +91,8 @@ const updateOnlineStatus = () => {
   let cacheSize = getFilesizeInBytes(require('@electron/remote').app.getPath("userData") + "/Data/songs.json") + getDirSize(require('@electron/remote').app.getPath("userData") + "/Data/downloads");
   
   clearButton.innerHTML = "Vider le cache ("+humanFileSize(cacheSize)+")"
+
+  console.log(require('@electron/remote').app.getPath("userData") + "/Data/downloads")
   
   clearButton.onclick = function(){
       fs.writeFileSync(require('@electron/remote').app.getPath("userData") + "/Data/songs.json", "{}")
@@ -140,43 +142,38 @@ const updateOnlineStatus = () => {
       <input id="playlist-id" type="text" placeholder="ID de la playlist">
   `);
   
-  modal.addFooterBtn('Créer', 'tingle-btn tingle-btn--primary', function() {
+  modal.addFooterBtn('Créer', 'tingle-btn tingle-btn--primary', async function() {
   
       const playlistName = document.getElementById("playlist-name").value;
 
       if(document.getElementById("playlist-id").value){
-        httpGetAsync(`https://getsiteping.000webhostapp.com/youtubeapi.php?id=`+document.getElementById("playlist-id").value, function(data){
+        let songs = await getPlaylistSongs(document.getElementById("playlist-id").value);
 
-        if(data == "null"){
-           modal.close()
-           return alert("Impossible de créer la playlist");
-            
+        console.log(songs)
+
+          if(songs){
+            db.createPlaylistWithSongs(playlistName, songs).then(() => {
+                location.reload()
+            })
+          }
+
+        else{
+          modal.close()
+          alert("Impossible de créer la playlist");
+                
         }
-            songs = JSON.parse(data)["items"].map(item => item["snippet"]["resourceId"]["videoId"])
-
-            if(songs){
-                db.createPlaylistWithSongs(playlistName, songs).then(() => {
-                    location.reload()
-                })
-            }
-
-            else{
-              modal.close()
-              alert("Impossible de créer la playlist");
-              
-            }
-        })
         
         
-      }
-      else{
-        db.createPlaylist(playlistName).then(() => {
-            location.reload()
-        })
-      }
+      
   
       
-  });
+  }
+  else{
+    db.createPlaylist(playlistName).then(() => {
+        location.reload()
+    })
+  }
+})
   
   modal.addFooterBtn('Annuler', 'tingle-btn tingle-btn--danger', function() {
       modal.close();
@@ -186,3 +183,104 @@ const updateOnlineStatus = () => {
   ipcRenderer.on('message', function(event, text) {
    document.querySelector(".status").innerHTML = text
   })
+
+
+async function getPlaylistPage(playlistId) {
+  const url = `https://cors-anywhere.herokuapp.com/https://www.youtube.com/playlist?list=${playlistId}`;
+
+  try {
+      const response = await fetch(url, {
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+          }
+      });
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const htmlText = await response.text();
+      return htmlText;
+  } catch (error) {
+      console.error('Error fetching playlist page:', error);
+  }
+}
+
+async function getPlaylistSongs(playlistId) {
+  htmlText = await getPlaylistPage(playlistId)
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlText, 'text/html');
+  const scripts = doc.querySelectorAll('script');
+  let ytInitialData;
+
+  scripts.forEach(script => {
+      const textContent = script.textContent;
+      if (textContent.includes('ytInitialData')) {
+          try {
+              const jsonStr = textContent.match(/ytInitialData\s*=\s*(\{.*?\});/);
+              if (jsonStr && jsonStr[1]) {
+                  ytInitialData = JSON.parse(jsonStr[1]);
+              }
+          } catch (error) {
+              return false
+          }
+      }
+  });
+
+  if (ytInitialData) {
+      try {
+          const videoItems = ytInitialData.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content
+              .sectionListRenderer.contents[0].itemSectionRenderer.contents[0]
+              .playlistVideoListRenderer.contents;
+
+            return videoItems.map(videoItem => videoItem.playlistVideoRenderer.videoId)
+
+      } catch (error) {
+          return false
+      }
+  } else {
+      return false
+  }
+}
+
+function generateLrcFile(lyricsData, outputPath) {
+  // Trier les données par timestamp
+  lyricsData.sort((a, b) => a.seconds - b.seconds);
+
+  // Générer le contenu du fichier LRC
+  const lrcContent = lyricsData.map(line => {
+    const minutes = Math.floor(line.seconds / 60);
+    const seconds = line.seconds % 60;
+    return `[${padZero(minutes)}:${padZero(seconds)}] ${line.lyrics}`;
+  }).join('\n');
+
+  // Écrire le contenu dans un fichier
+  fs.writeFileSync(outputPath, lrcContent, 'utf8');
+  console.log(`Fichier LRC créé : ${outputPath}`);
+}
+
+function padZero(number) {
+  return number < 10 ? `0${number}` : `${number}`;
+}
+
+const http = require('http');
+
+
+function makeHttpRequest(options, callback) {
+  const req = http.request(options, (res) => {
+    let responseData = '';
+
+    res.on('data', (chunk) => {
+      responseData += chunk;
+    });
+
+    res.on('end', () => {
+      callback(null, responseData);
+    });
+  });
+
+  req.on('error', (error) => {
+    callback(error);
+  });
+
+  req.end();
+}

@@ -53,6 +53,15 @@ class Player{
             glob.elements.author.innerText = glob.currentSong.author;
             glob.elements.title.innerText = glob.currentSong.name;
             glob.elements.cover.src = glob.currentSong.cover;
+              
+            averageColor(glob.currentSong.cover)
+            .then(couleurPrésente => {
+                glob.elements.cover.style.boxShadow = `0 0 50px 3px ${couleurPrésente}`;
+            })
+            .catch(error => {
+                  console.error('Erreur:', error.message);
+            });
+
     
             let global = glob;
     
@@ -143,7 +152,7 @@ class Player{
 
         document.addEventListener('keyup', event => {
 
-            if (event.code === 'Space') {
+            if (event.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
                 if(this.audio.paused){
                     this.audio.play()
                 }
@@ -206,3 +215,67 @@ class Player{
         this.audio.pause();
     }
 }
+
+
+function averageColor(imageUrl) {
+    return new Promise((resolve, reject) => {
+      const imageElement = new Image();
+  
+      imageElement.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+  
+        canvas.width = imageElement.width;
+        canvas.height = imageElement.height;
+        ctx.drawImage(imageElement, 0, 0);
+  
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const pixels = imageData.data;
+  
+        const colorCounts = {};
+  
+        for (let i = 0; i < pixels.length; i += 4) {
+          const r = pixels[i];
+          const g = pixels[i + 1];
+          const b = pixels[i + 2];
+          const a = pixels[i + 3];
+          const luminosite = (0.299 * r + 0.587 * g + 0.114 * b) * (a / 255);
+          const color = `rgb(${r},${g},${b})`;
+
+
+  
+          if (!colorCounts[color]) {
+            colorCounts[color] = 0;
+          }
+          colorCounts[color] += luminosite;
+        }
+  
+        let maxColor = null;
+        let maxCount = 0;
+        for (const color in colorCounts) {
+          if (colorCounts[color] > maxCount) {
+            maxColor = color;
+            maxCount = colorCounts[color];
+          }
+        }
+
+        function rgbToHex(rgb) {
+            const [r, g, b] = rgb.match(/\d+/g).map(value => parseInt(value));
+        
+            const rHex = r.toString(16).padStart(2, '0');
+            const gHex = g.toString(16).padStart(2, '0');
+            const bHex = b.toString(16).padStart(2, '0');
+        
+            return `#${rHex}${gHex}${bHex}`;
+        }
+  
+        resolve(rgbToHex(maxColor));
+      };
+
+      imageElement.onerror = function() {
+        reject(new Error('Erreur de chargement de l\'image.'));
+      };
+  
+      imageElement.src = imageUrl;
+    });
+  }

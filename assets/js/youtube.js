@@ -190,23 +190,39 @@ class YouTube{
     getDirectLink(video_id){
         return new Promise((res, rej) => {
 
-            
             this.ytDlpWrap.execPromise([
-                'https://www.youtube.com/watch?v='+video_id,
-                "--dump-json",
-                "-f",
-                "bestaudio[ext=m4a]",
-            ]).then((response) => {
-                let arr = JSON.parse(response)["formats"].filter(e => e.audio_ext == "webm");
-                let audio = arr[arr.length - 1]
-                res(audio["url"])
-            });
+                    'https://www.youtube.com/watch?v='+video_id,
+                    "--dump-json",
+                    "-f",
+                    "bestaudio[ext=m4a]",
+                ]).then((response) => {
+                    let arr = JSON.parse(response)["formats"].filter(e => e.audio_ext == "webm");
+                    let audio = arr[arr.length - 1]
+                    res(audio["url"])
+                }).catch(err => {
+                    rej(err)
+                })
+            
         })
         
     }
 
-    cacheVideo(video_id){
+    async cacheVideo(video_id){
+
+        let removeElement = (array, n) => {
+            let newArray = [];
+        
+            for (let i = 0; i < array.length; i++) {
+                if (array[i] !== n) {
+                    newArray.push(array[i]);
+                }
+            }
+            return newArray;
+        };
+
+
         let global = this;
+
         this.getDirectLink(video_id).then(url => {
             this.ytDlpWrap.getVideoInfo('https://www.youtube.com/watch?v='+video_id).then(d => {
                 if(d){
@@ -227,6 +243,14 @@ class YouTube{
                 }
             });
             
+        }).catch(e => {
+            this.playlist = removeElement(this.playlist, video_id)
+
+            if(this.index == this.playlist.length){
+                window.player = new Player(this.beautifulPlaylist);
+                document.querySelector('#loader-bg') ? document.querySelector('#loader-bg').remove() : "";
+                document.querySelector('#load') ? document.querySelector('#load').remove() : "";
+            }
         })
     }
 }
